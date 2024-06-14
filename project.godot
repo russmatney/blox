@@ -1,0 +1,35 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Blox"
+config/features=PackedStringArray("4.2", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+InputHelper="*res://addons/input_helper/input_helper.gd"
+Pandora="*res://addons/pandora/api.gd"
+SoundManager="*res://addons/sound_manager/sound_manager.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg", "res://addons/blox/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/gdfxr/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/log/plugin.cfg", "res://addons/pandora/plugin.cfg", "res://addons/sound_manager/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://addons/": "blue",
+"res://assets/": "pink",
+"res://pandora/": "gray",
+"res://src/": "orange",
+"res://test/": "gray"
+}

@@ -1,0 +1,17 @@
+# Godot 4+ specific ignores
+.godot/
+
+
+.clj-kondo/.cache
+.lsp/
+
+reports/
+
+build/build-output/
+dist/
+
+
+.DS_Store
+
+.plugged/
+clips/
