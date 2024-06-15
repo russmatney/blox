@@ -93,20 +93,30 @@ func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
 	return false
 
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
-	var all_coords_dict = all_coords_as_dict()
 	var new_cells = piece.relative_coords(piece.root_coord + dir)
 	var existing_cells = piece.grid_coords()
 
+	if has_conflict(new_cells, existing_cells):
+		return false
+	return true
+
+# returns true if the new_cell coords point to an existing piece
+# the existing_cells are ignored, and are assumed to belong to the moving/rotating piece
+func has_conflict(new_cells: Array[Vector2i], existing_cells: Array[Vector2i]) -> bool:
+	var all_coords_dict = all_coords_as_dict()
+
 	for c in new_cells:
 		if not c in all_coords_dict:
-			return false # beyond coords of level
+			Log.info("Cannot move/rotate into level boundary", c)
+			return true # beyond coords of level
 
 	for c in new_cells:
 		if c in existing_cells:
-			continue # ignore existing cells (b/c they'll move)
+			continue # ignore existing cells (b/c they'll move out of the way)
 		if all_coords_dict.get(c):
-			return false # there's an occupied cell in the way
-	return true
+			Log.info("Cannot move/rotate into existing cell", c)
+			return true # there's an occupied cell in the way
+	return false
 
 ## rotate piece ################################################
 
@@ -117,22 +127,12 @@ func rotate_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool
 	return false
 
 func can_piece_rotate(piece: BloxPiece, dir=Vector2i.DOWN):
-	var all_coords_dict = all_coords_as_dict()
-	var new_cells = piece.rotated_local_coords(dir).map(func(c): return c + piece.root_coord)
+	var new_cells = piece.rotated_grid_coords(dir)
 	var existing_cells = piece.grid_coords()
 
 	# TODO bump/push away from edges/pieces to make the rotation fit
-	for c in new_cells:
-		if not c in all_coords_dict:
-			Log.info("Cannot rotate into level boundary", c)
-			return false # beyond coords of level
-
-	for c in new_cells:
-		if c in existing_cells:
-			continue # ignore existing cells (b/c they'll move)
-		if all_coords_dict.get(c):
-			Log.info("Cannot rotate into occupied cell", c)
-			return false # there's an occupied cell in the way
+	if has_conflict(new_cells, existing_cells):
+		return false
 	return true
 
 ## remove ################################################

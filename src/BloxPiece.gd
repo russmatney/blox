@@ -89,6 +89,12 @@ func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 				new_cells.append(Vector2i(c.y, -c.x))
 	return new_cells
 
+func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
+	var ret: Array[Vector2i] = []
+	for c in rotated_local_coords(dir):
+		ret.append(c + root_coord)
+	return ret
+
 func rotate_once(dir=Vector2i.RIGHT):
 	# TODO consider bump/push of the root_coord when rotating?
 	local_cells = rotated_local_coords(dir)
