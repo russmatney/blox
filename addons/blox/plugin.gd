@@ -10,11 +10,16 @@ func _enter_tree():
 
 	editor_interface = get_editor_interface()
 
+	resource_saved.connect(_on_resource_saved, CONNECT_DEFERRED)
+
 	reload_scene_btn.pressed.connect(reload_scene)
 	reload_scene_btn.text = "R"
 	add_control_to_container(CONTAINER_TOOLBAR, reload_scene_btn)
 	reload_scene_btn.get_parent().move_child(reload_scene_btn, reload_scene_btn.get_index() - 2)
 
+
+func _on_resource_saved(res: Resource):
+	get_editor_interface().reload_scene_from_path(res.get_local_scene().scene_file_path)
 
 func _exit_tree():
 	# remove_autoload_singleton("Navi")
