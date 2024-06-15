@@ -7,10 +7,18 @@ class_name BloxPiece
 static func shapes():
 	return [
 		[
-			Vector2i(), Vector2i(1, 0),
-			Vector2i(0, 1)
+			Vector2i(), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)
 			], [
-			Vector2i(), Vector2i(1, 0), Vector2i(2, 0)
+			Vector2i(0, 1), Vector2i(1, 1),
+			Vector2i(), Vector2i(1, 0),
+			], [
+			Vector2i(), Vector2i(1, 0),
+			Vector2i(0, 1),
+			Vector2i(0, 2)
+			], [
+			Vector2i(0, 1),
+			Vector2i(), Vector2i(1, 0),
+						Vector2i(1, -1),
 			], [
 						Vector2i(1, 1),
 			Vector2i(), Vector2i(1, 0),
@@ -45,6 +53,16 @@ static func calc_coord_edges_in_cells(
 	if coord.y == maxy:
 		edges.append(Vector2i.DOWN)
 	return edges
+
+# returns the passed cells offset such that the top-left coord is 0,0
+func ensure_top_left(cells: Array[Vector2i]) -> Array[Vector2i]:
+	var minx = cells.map(func(c): return c.x).min()
+	var miny = cells.map(func(c): return c.y).min()
+
+	var ret: Array[Vector2i] = []
+	for c in cells:
+		ret.append(c - Vector2i(minx, miny))
+	return ret
 
 ## vars ################################################
 
@@ -107,7 +125,8 @@ func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 				new_cells.append(Vector2i(-c.y, c.x))
 			Vector2i.LEFT:
 				new_cells.append(Vector2i(c.y, -c.x))
-	return new_cells
+
+	return ensure_top_left(new_cells)
 
 func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
