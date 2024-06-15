@@ -96,18 +96,14 @@ func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 	var all_coords_dict = all_coords_as_dict()
 	var new_cells = piece.relative_coords(piece.root_coord + dir)
 	var existing_cells = piece.grid_coords()
-	var to_delete = []
 
 	for c in new_cells:
 		if not c in all_coords_dict:
 			return false # beyond coords of level
-		if c in existing_cells:
-			to_delete.append(c) # append same-piece cells
-
-	for c in to_delete:
-		new_cells.erase(c) # drop same-piece cells
 
 	for c in new_cells:
+		if c in existing_cells:
+			continue # ignore existing cells (b/c they'll move)
 		if all_coords_dict.get(c):
 			return false # there's an occupied cell in the way
 	return true
@@ -124,20 +120,16 @@ func can_piece_rotate(piece: BloxPiece, dir=Vector2i.DOWN):
 	var all_coords_dict = all_coords_as_dict()
 	var new_cells = piece.rotated_local_coords(dir).map(func(c): return c + piece.root_coord)
 	var existing_cells = piece.grid_coords()
-	var to_delete = []
 
 	# TODO bump/push away from edges/pieces to make the rotation fit
 	for c in new_cells:
 		if not c in all_coords_dict:
 			Log.info("Cannot rotate into level boundary", c)
 			return false # beyond coords of level
-		if c in existing_cells:
-			to_delete.append(c) # append same-piece cells
-
-	for c in to_delete:
-		new_cells.erase(c) # drop same-piece cells
 
 	for c in new_cells:
+		if c in existing_cells:
+			continue # ignore existing cells (b/c they'll move)
 		if all_coords_dict.get(c):
 			Log.info("Cannot rotate into occupied cell", c)
 			return false # there's an occupied cell in the way
