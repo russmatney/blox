@@ -95,45 +95,80 @@ func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 	var new_cells = piece.relative_coords(piece.root_coord + dir)
 	var existing_cells = piece.grid_coords()
-
-	if has_conflict(new_cells, existing_cells):
-		return false
-	return true
+	var conflicts = calc_conflicts(new_cells, existing_cells)
+	return conflicts.is_empty()
 
 # returns true if the new_cell coords point to an existing piece
 # the existing_cells are ignored, and are assumed to belong to the moving/rotating piece
-func has_conflict(new_cells: Array[Vector2i], existing_cells: Array[Vector2i]) -> bool:
+# PERF could pass an optional early return flag
+func calc_conflicts(new_cells: Array[Vector2i], existing_cells: Array[Vector2i]) -> Array[Vector2i]:
 	var all_coords_dict = all_coords_as_dict()
+	var conflicts: Array[Vector2i] = []
 
 	for c in new_cells:
 		if not c in all_coords_dict:
 			Log.info("Cannot move/rotate into level boundary", c)
-			return true # beyond coords of level
+			conflicts.append(c) # beyond coords of level
+			# return true
 
 	for c in new_cells:
 		if c in existing_cells:
 			continue # ignore existing cells (b/c they'll move out of the way)
 		if all_coords_dict.get(c):
 			Log.info("Cannot move/rotate into existing cell", c)
-			return true # there's an occupied cell in the way
-	return false
+			conflicts.append(c) # there's an occupied cell in the way
+	return conflicts
 
 ## rotate piece ################################################
 
-func rotate_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
-	if skip_check or can_piece_rotate(piece, dir):
-		piece.rotate_once(dir)
+func rotate_piece(piece: BloxPiece, dir=Vector2i.RIGHT) -> bool:
+	var ret = can_piece_rotate(piece, dir)
+	if ret[0]:
+		piece.rotate_once(dir, ret[1])
 		return true
 	return false
 
-func can_piece_rotate(piece: BloxPiece, dir=Vector2i.DOWN):
+func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
 	var new_cells = piece.rotated_grid_coords(dir)
 	var existing_cells = piece.grid_coords()
 
-	# TODO bump/push away from edges/pieces to make the rotation fit
-	if has_conflict(new_cells, existing_cells):
-		return false
-	return true
+	# bump/push away from edges/pieces to make the rotation fit
+	var conflicts = calc_conflicts(new_cells, existing_cells)
+
+	if conflicts.is_empty():
+		return [true, Vector2i()]
+
+	# collecting conflicting edge directions of the new_cells
+	var conflict_edges = []
+	for conf_coord in conflicts:
+		conflict_edges.append_array(BloxPiece.calc_coord_edges_in_cells(conf_coord, new_cells))
+
+	var bump_direction
+	if (Vector2i.LEFT in conflict_edges and
+		Vector2i.RIGHT in conflict_edges):
+		# probably a vertical conflict
+		# consider bumping up if something below us
+		pass
+	elif (Vector2i.LEFT in conflict_edges):
+		bump_direction = Vector2i.RIGHT
+	elif (Vector2i.RIGHT in conflict_edges):
+		bump_direction = Vector2i.LEFT
+
+	if not bump_direction:
+		return [false, Vector2i()]
+
+	# consider bumping multiple times, e.g. for tall rotations at the edge
+	var bumped_cells: Array[Vector2i] = []
+	for c in new_cells:
+		bumped_cells.append(c + bump_direction)
+
+	conflicts = calc_conflicts(bumped_cells, existing_cells)
+
+	if conflicts.is_empty():
+		return [true, bump_direction]
+
+	return [false, Vector2i()]
+
 
 ## remove ################################################
 

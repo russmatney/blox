@@ -26,6 +26,26 @@ static func random():
 		cells=shapes().pick_random()
 		})
 
+# maybe an odd calculation
+# should we ignore if a coord is both min and max in a direction?
+static func calc_coord_edges_in_cells(
+	coord: Vector2i, cells: Array[Vector2i]) -> Array[Vector2i]:
+	var minx = cells.map(func(c): return c.x).min()
+	var maxx = cells.map(func(c): return c.x).max()
+	var miny = cells.map(func(c): return c.y).min()
+	var maxy = cells.map(func(c): return c.y).max()
+
+	var edges: Array[Vector2i] = []
+	if coord.x == minx:
+		edges.append(Vector2i.LEFT)
+	if coord.x == maxx:
+		edges.append(Vector2i.RIGHT)
+	if coord.y == miny:
+		edges.append(Vector2i.UP)
+	if coord.y == maxy:
+		edges.append(Vector2i.DOWN)
+	return edges
+
 ## vars ################################################
 
 @export var local_cells: Array[Vector2i] = []
@@ -95,8 +115,8 @@ func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 		ret.append(c + root_coord)
 	return ret
 
-func rotate_once(dir=Vector2i.RIGHT):
-	# TODO consider bump/push of the root_coord when rotating?
+func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
+	root_coord += bump
 	local_cells = rotated_local_coords(dir)
 
 ## remove grid coord ####################################
