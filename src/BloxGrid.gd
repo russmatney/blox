@@ -7,7 +7,7 @@ class_name BloxGrid
 @export var width: int = 6
 @export var height: int = 10
 
-var pieces: Array[BloxPiece] = []
+@export var pieces: Array[BloxPiece] = []
 
 func to_pretty():
 	return {width=width, height=height}
@@ -22,7 +22,7 @@ func _init(opts={}):
 
 func can_add_piece(p: BloxPiece) -> bool:
 	var dict = piece_coords_as_dict()
-	for crd in p.relative_coords():
+	for crd in p.grid_coords():
 		if dict.get(crd):
 			return false
 	return true
@@ -61,7 +61,7 @@ func all_coords_as_dict() -> Dictionary:
 func piece_coords() -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
 	for p in pieces:
-		ret.append_array(p.relative_coords())
+		ret.append_array(p.grid_coords())
 	return ret
 
 ## returns a dict of Vector2i: bool
@@ -78,13 +78,18 @@ func piece_coords_as_dict() -> Dictionary:
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 	var all_coords_dict = all_coords_as_dict()
 	var new_cells = piece.relative_coords(piece.root_coord + dir)
+	var existing_cells = piece.grid_coords()
+	var to_delete = []
 
 	for c in new_cells:
 		if not c in all_coords_dict:
 			return false # beyond coords of level
+		if c in existing_cells:
+			to_delete.append(c) # append same-piece cells
 
-		if c in piece.local_cells:
-			new_cells.erase(c) # drop same-piece cells
+	for c in to_delete:
+		new_cells.erase(c) # drop same-piece cells
+
 	for c in new_cells:
 		if all_coords_dict.get(c):
 			return false # there's an occupied cell in the way

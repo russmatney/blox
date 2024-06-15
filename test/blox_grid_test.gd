@@ -16,6 +16,7 @@ func test_all_coords_as_dict():
 	assert_that(dict[Vector2i(0, 3)]).is_false()
 	assert_that(dict[Vector2i(2, 0)]).is_false()
 	assert_that(dict[Vector2i(2, 3)]).is_false()
+	assert_that(Vector2i(3, 4) in dict).is_false()
 	assert_that(Vector2i(3, 3) in dict).is_false()
 	assert_that(Vector2i(2, 4) in dict).is_false()
 
@@ -89,7 +90,7 @@ func test_can_piece_fall_tetris_style():
 
 
 func test_can_piece_fall_tetris_style_tall():
-	var grid = BloxGrid.new({width=2, height=3})
+	var grid = BloxGrid.new({width=2, height=4})
 	var p = BloxPiece.new({cells=[Vector2i(), Vector2i.DOWN], coord=Vector2i()})
 
 	grid.add_piece(p)
@@ -111,4 +112,11 @@ func test_can_piece_fall_tetris_style_tall():
 	crds = grid.piece_coords()
 	assert_int(len(grid.pieces)).is_equal(1)
 	assert_int(len(crds)).is_equal(2)
-	assert_array(crds).contains([Vector2i(0, 1), Vector2i(0, 2)])
+	assert_array(crds).contains([Vector2i(0, 2), Vector2i(0, 3)])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(2)
+	assert_array(crds).contains([Vector2i(0, 2), Vector2i(0, 3)])
