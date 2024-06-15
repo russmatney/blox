@@ -84,21 +84,13 @@ func coords_to_piece_dict() -> Dictionary:
 			ret[crd] = p
 	return ret
 
-## tetris ################################################
+## move piece ################################################
 
 func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
 	if skip_check or can_piece_move(piece, dir):
 		piece.move_once(dir)
 		return true
 	return false
-
-func remove_at_coord(coord: Vector2i):
-	var crd_to_piece = coords_to_piece_dict()
-	var piece = crd_to_piece.get(coord)
-	piece.remove_grid_coord(coord)
-
-	if piece.is_empty():
-		pieces.erase(piece)
 
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 	var all_coords_dict = all_coords_as_dict()
@@ -119,6 +111,49 @@ func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 		if all_coords_dict.get(c):
 			return false # there's an occupied cell in the way
 	return true
+
+## rotate piece ################################################
+
+func rotate_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
+	if skip_check or can_piece_rotate(piece, dir):
+		piece.rotate_once(dir)
+		return true
+	return false
+
+func can_piece_rotate(piece: BloxPiece, dir=Vector2i.DOWN):
+	var all_coords_dict = all_coords_as_dict()
+	var new_cells = piece.rotated_local_coords(dir).map(func(c): return c + piece.root_coord)
+	var existing_cells = piece.grid_coords()
+	var to_delete = []
+
+	# TODO bump/push away from edges/pieces to make the rotation fit
+	for c in new_cells:
+		if not c in all_coords_dict:
+			Log.info("Cannot rotate into level boundary", c)
+			return false # beyond coords of level
+		if c in existing_cells:
+			to_delete.append(c) # append same-piece cells
+
+	for c in to_delete:
+		new_cells.erase(c) # drop same-piece cells
+
+	for c in new_cells:
+		if all_coords_dict.get(c):
+			Log.info("Cannot rotate into occupied cell", c)
+			return false # there's an occupied cell in the way
+	return true
+
+## remove ################################################
+
+func remove_at_coord(coord: Vector2i):
+	var crd_to_piece = coords_to_piece_dict()
+	var piece = crd_to_piece.get(coord)
+	piece.remove_grid_coord(coord)
+
+	if piece.is_empty():
+		pieces.erase(piece)
+
+## tetris ################################################
 
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	# hmm i think we should do this bottom up and apply the fall right away

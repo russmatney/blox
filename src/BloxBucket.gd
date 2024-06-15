@@ -26,6 +26,33 @@ func _ready():
 
 	start_next_piece()
 
+## input ################################################
+
+func _input(event):
+	# TODO holding to apply multiple times doesn't work rn!!
+	if current_piece:
+		var did_move
+		var did_rotate
+		if Trolls.is_move_right(event):
+			did_move = grid.move_piece(current_piece, Vector2i.RIGHT)
+		if Trolls.is_move_left(event):
+			did_move = grid.move_piece(current_piece, Vector2i.LEFT)
+
+		if Trolls.is_move_up(event):
+			did_rotate = grid.rotate_piece(current_piece, Vector2i.RIGHT)
+
+		if did_move or did_rotate:
+			# TODO sound effect for move/hitwall/rotate
+			pass
+
+	# TODO move to some signal that listens on clicks
+	# if event is InputEventMouseButton:
+	# 	if not event.pressed and event.button_index == 1:
+	# 		Log.pr("mouse click!")
+	# 		grid.apply_step_tetris()
+	# 		render()
+
+
 ## start_next_piece ################################################
 
 func start_next_piece():
@@ -72,28 +99,6 @@ func tick():
 		if len(piece_queue) < 4:
 			queue_pieces()
 		start_next_piece()
-
-## input ################################################
-
-func _input(event):
-	if current_piece:
-		var did_move
-		if Trolls.is_move_right(event):
-			did_move = grid.move_piece(current_piece, Vector2i.RIGHT)
-		if Trolls.is_move_left(event):
-			did_move = grid.move_piece(current_piece, Vector2i.LEFT)
-
-		if did_move:
-			# TODO sound effect for move/hitwall
-			pass
-
-	# TODO move to some signal that listens on clicks
-	# if event is InputEventMouseButton:
-	# 	if not event.pressed and event.button_index == 1:
-	# 		Log.pr("mouse click!")
-	# 		grid.apply_step_tetris()
-	# 		render()
-
 
 ## render ################################################
 

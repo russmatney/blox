@@ -59,7 +59,7 @@ func _init(opts={}):
 func set_initial_coord(coord: Vector2i):
 	root_coord = coord
 
-## relative_coords ####################################333
+## relative_coords ####################################
 
 func relative_coords(coord: Vector2i) -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
@@ -70,14 +70,30 @@ func relative_coords(coord: Vector2i) -> Array[Vector2i]:
 func grid_coords() -> Array[Vector2i]:
 	return relative_coords(root_coord)
 
-## move_once ####################################333
+## move ####################################
 
 func move_once(dir=Vector2.DOWN):
 	root_coord += dir
 	for lc in local_cells:
 		lc += dir
 
-## remove grid coord ####################################333
+## rotate ####################################
+
+func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
+	var new_cells: Array[Vector2i] = []
+	for c in local_cells:
+		match(dir):
+			Vector2i.RIGHT:
+				new_cells.append(Vector2i(-c.y, c.x))
+			Vector2i.LEFT:
+				new_cells.append(Vector2i(c.y, -c.x))
+	return new_cells
+
+func rotate_once(dir=Vector2i.RIGHT):
+	# TODO consider bump/push of the root_coord when rotating?
+	local_cells = rotated_local_coords(dir)
+
+## remove grid coord ####################################
 
 func remove_grid_coord(coord: Vector2i):
 	var local_coord = coord - root_coord

@@ -61,7 +61,7 @@ func test_can_add_piece():
 	assert_array(crds).contains([Vector2i()])
 
 
-## tetris ##################################################
+## tetris fall ##################################################
 
 func test_can_piece_fall_tetris_style():
 	var grid = BloxGrid.new({width=2, height=2})
@@ -121,6 +121,7 @@ func test_can_piece_fall_tetris_style_tall():
 	assert_int(len(crds)).is_equal(2)
 	assert_array(crds).contains([Vector2i(0, 2), Vector2i(0, 3)])
 
+## tetris row clear ##################################################
 
 func test_tetris_clear_rows():
 	var grid = BloxGrid.new({width=2, height=2})
@@ -153,3 +154,32 @@ func test_tetris_clear_rows():
 	assert_int(len(grid.pieces)).is_equal(1)
 	assert_int(len(crds)).is_equal(1)
 	assert_array(crds).contains([Vector2i(1, 1)])
+
+## piece rotation ##################################################
+
+func test_rotate_piece():
+	var grid = BloxGrid.new({width=3, height=3})
+	var p = BloxPiece.new({cells=[Vector2i(), Vector2i(1, 0)],
+		coord=Vector2i(1, 1)})
+	grid.add_piece(p)
+
+	var crds = grid.piece_coords()
+	assert_array(crds).contains([Vector2i(1, 1), Vector2i(2, 1)])
+
+	# rotate once right (clockwise)
+	grid.rotate_piece(p, Vector2i.RIGHT)
+	assert_array(p.local_cells).contains([Vector2i(), Vector2i(0, 1)])
+	crds = grid.piece_coords()
+	assert_array(crds).contains([Vector2i(1, 1), Vector2i(1, 2)])
+
+	# rotate back
+	grid.rotate_piece(p, Vector2i.LEFT)
+	assert_array(p.local_cells).contains([Vector2i(), Vector2i(1, 0)])
+	crds = grid.piece_coords()
+	assert_array(crds).contains([Vector2i(1, 1), Vector2i(2, 1)])
+
+	# rotate once left (counter-clockwise)
+	grid.rotate_piece(p, Vector2i.LEFT)
+	assert_array(p.local_cells).contains([Vector2i(), Vector2i(0, -1)])
+	crds = grid.piece_coords()
+	assert_array(crds).contains([Vector2i(1, 1), Vector2i(1, 0)])
