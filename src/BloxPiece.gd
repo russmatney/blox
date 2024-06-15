@@ -76,3 +76,14 @@ func move_once(dir=Vector2.DOWN):
 	root_coord += dir
 	for lc in local_cells:
 		lc += dir
+
+## remove grid coord ####################################333
+
+func remove_grid_coord(coord: Vector2i):
+	var local_coord = coord - root_coord
+	if not local_coord in local_cells:
+		Log.warn("Tried to remove non-existent local_cell!")
+	local_cells.erase(local_coord)
+
+func is_empty():
+	return local_cells.is_empty()

@@ -75,8 +75,30 @@ func piece_coords_as_dict() -> Dictionary:
 		ret[coord] = true
 	return ret
 
+func coords_to_piece_dict() -> Dictionary:
+	var ret = {}
+	for p in pieces:
+		for crd in p.grid_coords():
+			if crd in ret:
+				Log.warn("Um, wut!? grid piece coord collision, should be impossible!")
+			ret[crd] = p
+	return ret
 
-## apply_step_tetris ################################################
+## tetris ################################################
+
+func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
+	if skip_check or can_piece_move(piece, dir):
+		piece.move_once(dir)
+		return true
+	return false
+
+func remove_at_coord(coord: Vector2i):
+	var crd_to_piece = coords_to_piece_dict()
+	var piece = crd_to_piece.get(coord)
+	piece.remove_grid_coord(coord)
+
+	if piece.is_empty():
+		pieces.erase(piece)
 
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 	var all_coords_dict = all_coords_as_dict()
@@ -98,12 +120,6 @@ func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 			return false # there's an occupied cell in the way
 	return true
 
-func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
-	if skip_check or can_piece_move(piece, dir):
-		piece.move_once(dir)
-		return true
-	return false
-
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	# hmm i think we should do this bottom up and apply the fall right away
 	# also there's probably interest in animating the change
@@ -121,4 +137,30 @@ func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	var did_move = not to_fall.is_empty()
 	return did_move
 
-## apply_gravity_puyo ################################################
+# returns the number of rows that were cleared
+func clear_rows() -> int:
+	var piece_dict = piece_coords_as_dict()
+	# collect coords to clear
+	var crds_to_clear = []
+	var rows_cleared = 0
+	for y in range(height):
+		var full_row = true
+		var row_crds = []
+		for x in range(width):
+			var crd = Vector2i(x, y)
+			row_crds.append(crd)
+			var crd_full = piece_dict.get(crd, false)
+			if not crd_full:
+				full_row = false
+
+		if full_row:
+			rows_cleared += 1
+			crds_to_clear.append_array(row_crds)
+
+	# remove from each pieces' local_cells
+	for crd in crds_to_clear:
+		remove_at_coord(crd)
+
+	return rows_cleared
+
+## puyo ################################################

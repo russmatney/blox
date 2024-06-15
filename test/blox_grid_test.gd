@@ -120,3 +120,36 @@ func test_can_piece_fall_tetris_style_tall():
 	assert_int(len(grid.pieces)).is_equal(1)
 	assert_int(len(crds)).is_equal(2)
 	assert_array(crds).contains([Vector2i(0, 2), Vector2i(0, 3)])
+
+
+func test_tetris_clear_rows():
+	var grid = BloxGrid.new({width=2, height=2})
+	grid.add_piece(BloxPiece.new({cells=[Vector2i()], coord=Vector2i()}))
+	grid.add_piece(BloxPiece.new({cells=[Vector2i(), Vector2i(0, -1)], coord=Vector2i(1, 0)}))
+
+	var crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(2)
+	assert_int(len(crds)).is_equal(3)
+	assert_array(crds).contains([Vector2i(), Vector2i(1, 0), Vector2i(1, -1)])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(2)
+	assert_int(len(crds)).is_equal(3)
+	assert_array(crds).contains([Vector2i(0, 1), Vector2i(1, 1), Vector2i(1, 0)])
+
+	var cleared_count = grid.clear_rows()
+	assert_int(cleared_count).is_equal(1)
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(1)
+	assert_array(crds).contains([Vector2i(1, 0)])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(1)
+	assert_array(crds).contains([Vector2i(1, 1)])

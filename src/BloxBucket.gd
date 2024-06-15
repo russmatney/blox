@@ -52,7 +52,7 @@ func queue_pieces(count=7):
 
 ## tick ################################################
 
-var tick_every = 0.6
+var tick_every = 0.4
 func tick():
 	await get_tree().create_timer(tick_every).timeout
 
@@ -62,6 +62,13 @@ func tick():
 	if did_change:
 		tick()
 	else:
+		# TODO puyo rules: groups to clear? pieces to split/fall?
+
+		var ct = grid.clear_rows()
+		if ct > 0:
+			# TODO row-clear animation/sound
+			pass
+
 		if len(piece_queue) < 4:
 			queue_pieces()
 		start_next_piece()
