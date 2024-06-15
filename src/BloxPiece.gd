@@ -5,14 +5,14 @@ class_name BloxPiece
 ## vars ################################################
 
 @export var local_cells: Array[Vector2i] = []
-@export var grid_cells: Array[Vector2i] = []
+# @export var grid_cells: Array[Vector2i] = []
 
 var root_coord = Vector2i()
 
 func to_pretty():
 	return {
 		local_cells=local_cells,
-		grid_cells=grid_cells,
+		# grid_cells=grid_cells,
 		}
 
 ## init ################################################
@@ -31,3 +31,10 @@ func relative_coords(coord: Vector2i = root_coord) -> Array[Vector2i]:
 	for lc in local_cells:
 		ret.append(lc + coord)
 	return ret
+
+## move_once ####################################333
+
+func move_once(dir=Vector2.DOWN):
+	root_coord += dir
+	for lc in local_cells:
+		lc += dir

@@ -58,3 +58,57 @@ func test_can_add_piece():
 	assert_int(len(grid.pieces)).is_equal(1)
 	assert_int(len(crds)).is_equal(1)
 	assert_array(crds).contains([Vector2i()])
+
+
+## tetris ##################################################
+
+func test_can_piece_fall_tetris_style():
+	var grid = BloxGrid.new({width=2, height=2})
+	var p = BloxPiece.new({cells=[Vector2i()], coord=Vector2i()})
+
+	grid.add_piece(p)
+
+	var crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(1)
+	assert_array(crds).contains([Vector2i()])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(1)
+	assert_array(crds).contains([Vector2i(0, 1)])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(1)
+	assert_array(crds).contains([Vector2i(0, 1)])
+
+
+func test_can_piece_fall_tetris_style_tall():
+	var grid = BloxGrid.new({width=2, height=3})
+	var p = BloxPiece.new({cells=[Vector2i(), Vector2i.DOWN], coord=Vector2i()})
+
+	grid.add_piece(p)
+
+	var crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(2)
+	assert_array(crds).contains([Vector2i(), Vector2i(0, 1)])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(2)
+	assert_array(crds).contains([Vector2i(0, 1), Vector2i(0, 2)])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(2)
+	assert_array(crds).contains([Vector2i(0, 1), Vector2i(0, 2)])

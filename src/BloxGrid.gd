@@ -71,3 +71,37 @@ func piece_coords_as_dict() -> Dictionary:
 	for coord in piece_coords():
 		ret[coord] = true
 	return ret
+
+
+## apply_step_tetris ################################################
+
+func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
+	var all_coords_dict = all_coords_as_dict()
+	var new_cells = piece.relative_coords(piece.root_coord + dir)
+
+	for c in new_cells:
+		if not c in all_coords_dict:
+			return false # beyond coords of level
+
+		if c in piece.local_cells:
+			new_cells.erase(c) # drop same-piece cells
+	for c in new_cells:
+		if all_coords_dict.get(c):
+			return false # there's an occupied cell in the way
+	return true
+
+func apply_step_tetris(dir=Vector2i.DOWN):
+	# hmm i think we should do this bottom up and apply the fall right away
+	# also there's probably interest in animating the change
+	var to_fall = []
+	for piece in pieces:
+		var should_move = can_piece_move(piece, dir)
+		if should_move:
+			to_fall.append(piece)
+
+	# drop them all at once
+	# (this doesn't seem right, multi-piece chunks won't fall together)
+	for piece in to_fall:
+		piece.move_once(dir)
+
+## apply_gravity_puyo ################################################
