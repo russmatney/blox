@@ -18,6 +18,9 @@ func _init(opts={}):
 	width = opts.get("width", width)
 	height = opts.get("height", height)
 
+func entry_coord() -> Vector2i:
+	return Vector2i(floor(width/2.0) - 1, 0)
+
 ## add_piece ################################################
 
 func can_add_piece(p: BloxPiece) -> bool:
@@ -95,7 +98,13 @@ func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 			return false # there's an occupied cell in the way
 	return true
 
-func apply_step_tetris(dir=Vector2i.DOWN):
+func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
+	if skip_check or can_piece_move(piece, dir):
+		piece.move_once(dir)
+		return true
+	return false
+
+func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	# hmm i think we should do this bottom up and apply the fall right away
 	# also there's probably interest in animating the change
 	var to_fall = []
@@ -107,6 +116,9 @@ func apply_step_tetris(dir=Vector2i.DOWN):
 	# drop them all at once
 	# (this doesn't seem right, multi-piece chunks won't fall together)
 	for piece in to_fall:
-		piece.move_once(dir)
+		move_piece(piece, dir, true)
+
+	var did_move = not to_fall.is_empty()
+	return did_move
 
 ## apply_gravity_puyo ################################################

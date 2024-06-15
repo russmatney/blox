@@ -9,6 +9,9 @@ extends Node2D
 const BUCKET_CELL_GROUP="bucket_cells"
 const PIECE_CELL_GROUP="piece_cells"
 
+var piece_queue: Array[BloxPiece] = []
+var current_piece
+
 func to_pretty():
 	return {grid=grid}
 
@@ -17,17 +20,72 @@ func to_pretty():
 func _ready():
 	Log.pr("I'm ready!", self)
 
+	# shuffle next-pieces
+	queue_pieces(7)
 	render()
+
+	start_next_piece()
+
+## start_next_piece ################################################
+
+func start_next_piece():
+	current_piece = piece_queue.pop_front()
+	if current_piece == null:
+		Log.warn("No piece found! aborting start_next_piece")
+		return
+
+	current_piece.set_initial_coord(grid.entry_coord())
+	var can_add = grid.can_add_piece(current_piece)
+	if can_add:
+		Log.info("Adding next piece!", current_piece)
+		grid.add_piece(current_piece, true)
+		tick()
+	else:
+		Log.info("Stuck! game over!!")
+
+## queue_pieces ################################################
+
+func queue_pieces(count=7):
+	for i in range(count):
+		var p = BloxPiece.random()
+		piece_queue.append(p)
+
+## tick ################################################
+
+var tick_every = 0.6
+func tick():
+	await get_tree().create_timer(tick_every).timeout
+
+	var did_change = grid.apply_step_tetris()
+	render()
+
+	if did_change:
+		tick()
+	else:
+		if len(piece_queue) < 4:
+			queue_pieces()
+		start_next_piece()
 
 ## input ################################################
 
 func _input(event):
+	if current_piece:
+		var did_move
+		if Trolls.is_move_right(event):
+			did_move = grid.move_piece(current_piece, Vector2i.RIGHT)
+		if Trolls.is_move_left(event):
+			did_move = grid.move_piece(current_piece, Vector2i.LEFT)
+
+		if did_move:
+			# TODO sound effect for move/hitwall
+			pass
+
 	# TODO move to some signal that listens on clicks
-	if event is InputEventMouseButton:
-		if not event.pressed and event.button_index == 1:
-			Log.pr("mouse click!")
-			grid.apply_step_tetris()
-			render()
+	# if event is InputEventMouseButton:
+	# 	if not event.pressed and event.button_index == 1:
+	# 		Log.pr("mouse click!")
+	# 		grid.apply_step_tetris()
+	# 		render()
 
 
 ## render ################################################
@@ -60,17 +118,11 @@ func render_pieces():
 
 	var size_diff = Vector2.ONE * 2
 	for piece in grid.pieces:
-		var color = random_piece_color()
 		for coord in piece.grid_coords():
 			var cr = ColorRect.new()
-			cr.color = color
+			cr.color = piece.color
 			cr.position = Vector2(coord) * cell_size + (size_diff/2.0)
 			cr.size = cell_size - size_diff
 			cr.name = "PieceCell-%s-%s" % [coord.x, coord.y]
 			cr.add_to_group(PIECE_CELL_GROUP)
 			add_child(cr)
-
-func random_piece_color():
-	return [Color.PERU, Color.AQUAMARINE, Color.CRIMSON,
-		Color.CORAL, Color.TEAL, Color.TOMATO,
-		].pick_random()
