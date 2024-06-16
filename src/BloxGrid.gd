@@ -172,6 +172,8 @@ func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
 
 ## remove ################################################
 
+# removes a cell from a piece at the passed grid_coord.
+# if the result is an empty piece, it is removed from the state pieces.
 func remove_at_coord(coord: Vector2i):
 	var crd_to_piece = coords_to_piece_dict()
 	var piece = crd_to_piece.get(coord)
@@ -275,6 +277,8 @@ func clear_groups() -> Array:
 	var crd_to_piece = coords_to_piece_dict()
 	for crd in crd_to_piece.keys():
 		var piece = crd_to_piece.get(crd)
+		if not piece in pieces:
+			continue # piece already removed (likely by remove_at_coord), skip it
 		var color = piece.get_coord_color(crd)
 		var group = get_common_neighbors(crd, crd_to_piece,
 			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
@@ -291,27 +295,28 @@ func get_common_neighbors(
 		crd_to_piece: Dictionary,
 		# is_match: Callable[Vector2i, BloxPiece, bool],
 		is_match: Callable,
-		visited=null,
 		collected=null,
 	):
 	if not collected:
 		collected = []
-	collected.append(coord)
+	if not coord in collected:
+		collected.append(coord)
 
-	if not visited:
-		visited = []
-	visited.append(coord)
+	var new_nbrs = []
 
 	var nbrs = neighbor_coords(coord).filter(
 		# don't check any neighbors we've already visited
-		func(crd): return not crd in visited)
+		func(crd): return not crd in collected)
 	for nbr in nbrs:
 		var nbr_p = crd_to_piece.get(nbr)
 		if nbr_p:
 			if is_match.call(nbr, nbr_p):
-				collected.append_array(get_common_neighbors(
-					nbr, crd_to_piece, is_match, visited, collected
-					))
+				new_nbrs.append(nbr)
+
+	for nbr in new_nbrs:
+		collected.append_array(get_common_neighbors(
+			nbr, crd_to_piece, is_match, collected
+			))
 
 	return collected
 

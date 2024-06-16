@@ -200,7 +200,7 @@ func test_rotate_piece_bump():
 	assert_array(crds).contains([Vector2i(), Vector2i(1, 0)])
 
 
-## puyo fall ##################################################
+## puyo split/fall ##################################################
 
 func test_puyo_piece_split():
 	var grid = BloxGrid.new({width=2, height=2})
@@ -222,7 +222,6 @@ func test_puyo_piece_split():
 
 	crds = grid.piece_coords()
 	assert_int(len(grid.pieces)).is_equal(2)
-	Log.pr("grid pieces", grid.pieces)
 	assert_int(len(crds)).is_equal(3)
 	assert_array(crds).contains([
 		Vector2i(), Vector2i(1, 0),
@@ -233,9 +232,37 @@ func test_puyo_piece_split():
 
 	crds = grid.piece_coords()
 	assert_int(len(grid.pieces)).is_equal(2)
-	Log.pr("grid pieces", grid.pieces)
 	assert_int(len(crds)).is_equal(3)
 	assert_array(crds).contains([
 		Vector2i(),
 		Vector2i(0, 1), Vector2i(1, 1),
 	])
+
+
+## puyo group clear ##################################################
+
+func test_puyo_group_clear():
+	var grid = BloxGrid.new({width=2, height=2})
+	# TODO specify same color for cells
+	var p = BloxPiece.new({cells=[
+		Vector2i(), Vector2i(1, 0),
+		Vector2i(0, 1), Vector2i(1, 1),
+		], coord=Vector2i()})
+	grid.add_piece(p)
+
+	var crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(4)
+	assert_array(crds).contains([
+		Vector2i(), Vector2i(1, 0),
+		Vector2i(0, 1), Vector2i(1, 1),
+		])
+
+	var ret = grid.clear_groups()
+
+	# should remove 4 cells
+	assert_array(ret).contains([4])
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(0)
+	assert_int(len(crds)).is_equal(0)
