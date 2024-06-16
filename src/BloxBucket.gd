@@ -18,12 +18,12 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
-	Log.pr("I'm readyyy!", self)
+	Log.pr("I'm ready!", self)
 
 	# shuffle next-pieces
 	queue_pieces(7)
 	render()
-	# start_next_piece()
+	start_next_piece()
 
 	if Engine.is_editor_hint():
 		request_ready()
@@ -115,12 +115,15 @@ func render_bucket_cells():
 		if ch.is_in_group(BUCKET_CELL_GROUP):
 			ch.free()
 
-	var size_diff = Vector2.ONE * 4
-	for coord in grid.all_coords():
+	var size_factor = 0.2
+	var all_coords = grid.all_coords()
+	for i in range(len(all_coords)):
+		var coord = all_coords[i]
 		var cr = ColorRect.new()
-		cr.color = Color.GRAY
-		cr.position = Vector2(coord) * cell_size + size_diff/2.0
-		cr.size = cell_size - size_diff
+		cr.color = Color.DIM_GRAY if i % 2 == 0 else Color.DARK_GRAY
+		var cell_size_adj = cell_size * (1 - size_factor)
+		cr.position = Vector2(coord) * cell_size + (cell_size_adj/2.0)
+		cr.size = cell_size - cell_size_adj
 		cr.name = "BucketCell-%s-%s" % [coord.x, coord.y]
 		cr.add_to_group(BUCKET_CELL_GROUP)
 		add_child(cr)
@@ -130,13 +133,14 @@ func render_pieces():
 		if ch.is_in_group(PIECE_CELL_GROUP):
 			ch.free()
 
-	var size_diff = Vector2.ONE * 2
+	var size_factor = 0.8
 	for piece in grid.pieces:
 		for coord in piece.grid_coords():
 			var cr = ColorRect.new()
 			cr.color = piece.color
-			cr.position = Vector2(coord) * cell_size + (size_diff/2.0)
-			cr.size = cell_size - size_diff
+			var cell_size_adj = cell_size * (1 - size_factor)
+			cr.position = Vector2(coord) * cell_size + (cell_size_adj/2.0)
+			cr.size = cell_size - cell_size_adj
 			cr.name = "PieceCell-%s-%s" % [coord.x, coord.y]
 			cr.add_to_group(PIECE_CELL_GROUP)
 			add_child(cr)
