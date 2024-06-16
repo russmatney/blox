@@ -44,8 +44,8 @@ func _input(event):
 			did_rotate = grid.rotate_piece(current_piece, Vector2i.RIGHT)
 
 		if did_move or did_rotate:
+			render()
 			# TODO sound effect for move/hitwall/rotate
-			pass
 
 	# TODO move to some signal that listens on clicks
 	# if event is InputEventMouseButton:
