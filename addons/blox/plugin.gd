@@ -10,7 +10,7 @@ func _enter_tree():
 
 	editor_interface = get_editor_interface()
 
-	resource_saved.connect(_on_resource_saved, CONNECT_DEFERRED)
+	resource_saved.connect(_on_resource_saved)
 
 	reload_scene_btn.pressed.connect(reload_scene)
 	reload_scene_btn.text = "R"
@@ -19,7 +19,12 @@ func _enter_tree():
 
 
 func _on_resource_saved(res: Resource):
-	get_editor_interface().reload_scene_from_path(res.get_local_scene().scene_file_path)
+	print("-------------------------------------------------")
+	Log.info("[ResourceSaved] ", Time.get_time_string_from_system())
+	Log.info("resource", res)
+	get_editor_interface().call_deferred("reload_scene_from_path",
+		res.get_local_scene().scene_file_path)
+	print("-------------------------------------------------")
 
 func _exit_tree():
 	# remove_autoload_singleton("Navi")

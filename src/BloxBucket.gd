@@ -18,13 +18,15 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
-	Log.pr("I'm ready!", self)
+	Log.pr("I'm readyyy!", self)
 
 	# shuffle next-pieces
 	queue_pieces(7)
 	render()
+	# start_next_piece()
 
-	start_next_piece()
+	if Engine.is_editor_hint():
+		request_ready()
 
 ## input ################################################
 
