@@ -10,7 +10,7 @@ class_name BloxGrid
 @export var pieces: Array[BloxPiece] = []
 
 func to_pretty():
-	return {width=width, height=height}
+	return {width=width, height=height, pieces=pieces}
 
 ## init ################################################
 
@@ -192,7 +192,8 @@ func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 			to_fall.append(piece)
 
 	# drop them all at once
-	# (this doesn't seem right, multi-piece chunks won't fall together)
+	# (this doesn't seem right, multi-piece stacks won't fall together)
+	# maybe it's fine/a graphic?
 	for piece in to_fall:
 		move_piece(piece, dir, true)
 
@@ -226,3 +227,43 @@ func clear_rows() -> int:
 	return rows_cleared
 
 ## puyo ################################################
+
+func split_piece_coord(piece: BloxPiece, coord: Vector2i) -> void:
+	piece.remove_grid_coord(coord)
+	var new_p = BloxPiece.new({coord=coord, cells=[Vector2()]})
+	add_piece(new_p)
+
+# splits pieces apart based on room-to-fall beneath cells
+func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
+	var crd_to_piece = coords_to_piece_dict()
+
+	var to_fall = []
+	var bottom_up = range(height)
+	bottom_up.reverse()
+	for y in bottom_up:
+		for x in range(width):
+			var crd = Vector2i(x, y)
+			var p = crd_to_piece.get(crd)
+			if not p:
+				continue
+			var p_below = crd_to_piece.get(crd + dir)
+			if not p_below:
+				continue
+
+			# maybe don't split unless some other piece can't fall? or just split everything in puyo mode?
+
+			if p.cell_count() > 1: # only split if more than one cell
+				to_fall.append(crd)
+
+	for crd in to_fall:
+		var p = crd_to_piece.get(crd)
+		split_piece_coord(p, crd)
+
+	var did_move = not to_fall.is_empty()
+	return did_move
+
+# clear all same-color-4-touching coords
+# return a list of the cleared groups, including how many blocks were cleared
+func clear_groups() -> Array:
+	Log.warn("clear_groups() not impled!")
+	return []

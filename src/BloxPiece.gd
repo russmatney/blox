@@ -97,6 +97,9 @@ func _init(opts={}):
 func set_initial_coord(coord: Vector2i):
 	root_coord = coord
 
+func cell_count() -> int:
+	return len(local_cells)
+
 ## relative_coords ####################################
 
 func relative_coords(coord: Vector2i) -> Array[Vector2i]:

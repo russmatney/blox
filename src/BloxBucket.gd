@@ -47,14 +47,6 @@ func _input(event):
 			render()
 			# TODO sound effect for move/hitwall/rotate
 
-	# TODO move to some signal that listens on clicks
-	# if event is InputEventMouseButton:
-	# 	if not event.pressed and event.button_index == 1:
-	# 		Log.pr("mouse click!")
-	# 		grid.apply_step_tetris()
-	# 		render()
-
-
 ## start_next_piece ################################################
 
 func start_next_piece():
@@ -75,6 +67,7 @@ func start_next_piece():
 ## queue_pieces ################################################
 
 func queue_pieces(count=7):
+	# TODO proper tetris shuffle
 	for i in range(count):
 		var p = BloxPiece.random()
 		piece_queue.append(p)
@@ -86,21 +79,31 @@ func tick():
 	await get_tree().create_timer(tick_every).timeout
 
 	var did_change = grid.apply_step_tetris()
+
+	# puyo split - if any splits, need to apply_step_tetris after splitting so other cells fall
+	did_change = did_change or grid.apply_split_puyo()
+
 	render()
 
 	if did_change:
 		tick()
-	else:
-		# TODO puyo rules: groups to clear? pieces to split/fall?
+		return # wait to clear until we're all settled
 
-		var ct = grid.clear_rows()
-		if ct > 0:
-			# TODO row-clear animation/sound
-			pass
+	# puyo clear
+	var groups = grid.clear_groups()
+	if not groups.is_empty():
+		# TODO group-clear animation/sound
+		pass
 
-		if len(piece_queue) < 4:
-			queue_pieces()
-		start_next_piece()
+	# tetris clear
+	var ct = grid.clear_rows()
+	if ct > 0:
+		# TODO row-clear animation/sound
+		pass
+
+	if len(piece_queue) < 4:
+		queue_pieces()
+	start_next_piece()
 
 ## render ################################################
 
