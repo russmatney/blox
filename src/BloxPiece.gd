@@ -29,6 +29,12 @@ static func shapes():
 			]
 		]
 
+# TODO probably configurable/set by some theme
+static func random_cell_color():
+	return [Color.PERU, Color.AQUAMARINE, Color.CRIMSON,
+		Color.CORAL, Color.TEAL, Color.TOMATO,
+		].pick_random()
+
 static func random():
 	return BloxPiece.new({
 		cells=shapes().pick_random()
@@ -75,11 +81,6 @@ var color: Color
 func to_pretty():
 	return {local_cells=local_cells, root_coord=root_coord}
 
-func random_piece_color():
-	return [Color.PERU, Color.AQUAMARINE, Color.CRIMSON,
-		Color.CORAL, Color.TEAL, Color.TOMATO,
-		].pick_random()
-
 ## init ################################################
 
 func _init(opts={}):
@@ -92,13 +93,17 @@ func _init(opts={}):
 	if opts.get("color"):
 		color = opts.get("color")
 	else:
-		color = random_piece_color()
+		# TODO color per cell
+		color = BloxPiece.random_cell_color()
 
 func set_initial_coord(coord: Vector2i):
 	root_coord = coord
 
 func cell_count() -> int:
 	return len(local_cells)
+
+func is_empty():
+	return local_cells.is_empty()
 
 ## relative_coords ####################################
 
@@ -143,11 +148,21 @@ func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
 
 ## remove grid coord ####################################
 
-func remove_grid_coord(coord: Vector2i):
-	var local_coord = coord - root_coord
+func remove_grid_coord(grid_coord: Vector2i):
+	var local_coord = grid_coord - root_coord
 	if not local_coord in local_cells:
 		Log.warn("Tried to remove non-existent local_cell!")
 	local_cells.erase(local_coord)
 
-func is_empty():
-	return local_cells.is_empty()
+## cell color ####################################
+
+# returns the color for the cell at the passed GRID coordinate
+func get_coord_color(grid_coord: Vector2i):
+	var local_coord = grid_coord - root_coord
+	if not local_coord in local_cells:
+		Log.warn("Tried to get color for non-existent local_cell!")
+
+	return color
+	# TODO refactor into local_cell data type (with color)
+	# var cell = local_cell_data_dict().get(local_coord)
+	# return cell.color

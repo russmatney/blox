@@ -175,6 +175,9 @@ func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
 func remove_at_coord(coord: Vector2i):
 	var crd_to_piece = coords_to_piece_dict()
 	var piece = crd_to_piece.get(coord)
+	if not piece:
+		Log.warn("cannot remove at coord, no piece here!")
+		return
 	piece.remove_grid_coord(coord)
 
 	if piece.is_empty():
@@ -226,7 +229,7 @@ func clear_rows() -> int:
 
 	return rows_cleared
 
-## puyo ################################################
+## puyo split ################################################
 
 func split_piece_coord(piece: BloxPiece, coord: Vector2i) -> void:
 	piece.remove_grid_coord(coord)
@@ -263,8 +266,59 @@ func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 	var did_split = not to_split.is_empty()
 	return did_split
 
+## puyo clear ################################################
+
 # clear all same-color-4-touching coords
 # return a list of the cleared groups, including how many blocks were cleared
 func clear_groups() -> Array:
-	Log.warn("clear_groups() not impled!")
-	return []
+	var groups_cleared = []
+	var crd_to_piece = coords_to_piece_dict()
+	for crd in crd_to_piece.keys():
+		var piece = crd_to_piece.get(crd)
+		var color = piece.get_coord_color(crd)
+		var group = get_common_neighbors(crd, crd_to_piece,
+			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
+		if len(group) > 3:
+			Log.info("found group large enough to remove!", group)
+			groups_cleared.append(len(group))
+			for c in group:
+				remove_at_coord(c)
+
+	return groups_cleared
+
+func get_common_neighbors(
+		coord: Vector2i,
+		crd_to_piece: Dictionary,
+		# is_match: Callable[Vector2i, BloxPiece, bool],
+		is_match: Callable,
+		visited=null,
+		collected=null,
+	):
+	if not collected:
+		collected = []
+	collected.append(coord)
+
+	if not visited:
+		visited = []
+	visited.append(coord)
+
+	var nbrs = neighbor_coords(coord).filter(
+		# don't check any neighbors we've already visited
+		func(crd): return not crd in visited)
+	for nbr in nbrs:
+		var nbr_p = crd_to_piece.get(nbr)
+		if nbr_p:
+			if is_match.call(nbr, nbr_p):
+				collected.append_array(get_common_neighbors(
+					nbr, crd_to_piece, is_match, visited, collected
+					))
+
+	return collected
+
+func neighbor_coords(coord: Vector2i):
+	return [
+		coord + Vector2i.UP,
+		coord + Vector2i.DOWN,
+		coord + Vector2i.LEFT,
+		coord + Vector2i.RIGHT,
+		]

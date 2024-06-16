@@ -80,6 +80,7 @@ func tick():
 
 	var did_change = grid.apply_step_tetris()
 
+	# TODO flags for game logic - compose from current jokers/fathers/characters
 	# puyo split - if any splits, need to apply_step_tetris after splitting so other cells fall
 	did_change = did_change or grid.apply_split_puyo()
 
