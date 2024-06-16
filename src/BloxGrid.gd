@@ -230,37 +230,38 @@ func clear_rows() -> int:
 
 func split_piece_coord(piece: BloxPiece, coord: Vector2i) -> void:
 	piece.remove_grid_coord(coord)
-	var new_p = BloxPiece.new({coord=coord, cells=[Vector2()]})
+	var new_p = BloxPiece.new({coord=coord, cells=[Vector2()], color=piece.color})
 	add_piece(new_p)
 
 # splits pieces apart based on room-to-fall beneath cells
 func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 	var crd_to_piece = coords_to_piece_dict()
 
-	var to_fall = []
+	var to_split = []
 	var bottom_up = range(height)
 	bottom_up.reverse()
+	bottom_up.pop_front() # skip the whole bottom row!
 	for y in bottom_up:
 		for x in range(width):
 			var crd = Vector2i(x, y)
 			var p = crd_to_piece.get(crd)
 			if not p:
-				continue
+				continue # no piece at coord, nothing to do
 			var p_below = crd_to_piece.get(crd + dir)
-			if not p_below:
-				continue
+			if p_below:
+				continue # don't split if there's nowhere to fall
 
 			# maybe don't split unless some other piece can't fall? or just split everything in puyo mode?
 
 			if p.cell_count() > 1: # only split if more than one cell
-				to_fall.append(crd)
+				to_split.append(crd)
 
-	for crd in to_fall:
+	for crd in to_split:
 		var p = crd_to_piece.get(crd)
 		split_piece_coord(p, crd)
 
-	var did_move = not to_fall.is_empty()
-	return did_move
+	var did_split = not to_split.is_empty()
+	return did_split
 
 # clear all same-color-4-touching coords
 # return a list of the cleared groups, including how many blocks were cleared

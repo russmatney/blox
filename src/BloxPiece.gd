@@ -55,7 +55,7 @@ static func calc_coord_edges_in_cells(
 	return edges
 
 # returns the passed cells offset such that the top-left coord is 0,0
-func ensure_top_left(cells: Array[Vector2i]) -> Array[Vector2i]:
+static func ensure_top_left(cells: Array[Vector2i]) -> Array[Vector2i]:
 	var minx = cells.map(func(c): return c.x).min()
 	var miny = cells.map(func(c): return c.y).min()
 
@@ -73,7 +73,7 @@ func ensure_top_left(cells: Array[Vector2i]) -> Array[Vector2i]:
 var color: Color
 
 func to_pretty():
-	return {local_cells=local_cells}
+	return {local_cells=local_cells, root_coord=root_coord}
 
 func random_piece_color():
 	return [Color.PERU, Color.AQUAMARINE, Color.CRIMSON,
@@ -129,7 +129,7 @@ func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 			Vector2i.LEFT:
 				new_cells.append(Vector2i(c.y, -c.x))
 
-	return ensure_top_left(new_cells)
+	return BloxPiece.ensure_top_left(new_cells)
 
 func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
