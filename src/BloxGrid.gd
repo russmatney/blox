@@ -313,10 +313,12 @@ func get_common_neighbors(
 			if is_match.call(nbr, nbr_p):
 				new_nbrs.append(nbr)
 
+	# NOTE changing collected IN-PLACE!
+	collected.append_array(new_nbrs)
+
 	for nbr in new_nbrs:
-		collected.append_array(get_common_neighbors(
-			nbr, crd_to_piece, is_match, collected
-			))
+		# NOTE changes 'collected' IN-PLACE!
+		get_common_neighbors(nbr, crd_to_piece, is_match, collected)
 
 	return collected
 
