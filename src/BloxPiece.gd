@@ -70,10 +70,21 @@ static func ensure_top_left(cells: Array[Vector2i]) -> Array[Vector2i]:
 		ret.append(c - Vector2i(minx, miny))
 	return ret
 
+static func ensure_top_left_cells(cells: Array[BloxCell]) -> Array[BloxCell]:
+	var minx = cells.map(func(c): return c.coord.x).min()
+	var miny = cells.map(func(c): return c.coord.y).min()
+
+	var ret: Array[BloxCell] = []
+	for c in cells:
+		ret.append(BloxCell.new({
+			coord=c.coord - Vector2i(minx, miny),
+			color=c.color,
+			}))
+	return ret
+
 ## vars ################################################
 
-@export var local_cells: Array[Vector2i] = []
-
+@export var local_cells: Array[BloxCell] = []
 @export var root_coord = Vector2i()
 
 var color: Color
@@ -84,16 +95,24 @@ func to_pretty():
 ## init ################################################
 
 func _init(opts={}):
-	if opts.get("cells", opts.get("local_cells")):
-		local_cells.assign(opts.get("cells", opts.get("local_cells")))
+	if opts.get("cells"):
+		var cells = []
+		for c in opts.get("cells"):
+			cells.append(BloxCell.new({
+				coord=c,
+				# make similar color choices to 'tetris-shuffle'
+				color=opts.get("color", BloxPiece.random_cell_color()),
+				}))
+		local_cells.assign(cells)
 
+	# drop one of these inputs
 	if opts.get("coord", opts.get("root_coord")):
 		root_coord = opts.get("coord", opts.get("root_coord"))
 
+	# no need for piece-color when we have cell-color?
 	if opts.get("color"):
 		color = opts.get("color")
 	else:
-		# TODO color per cell
 		color = BloxPiece.random_cell_color()
 
 func set_initial_coord(coord: Vector2i):
@@ -105,36 +124,56 @@ func cell_count() -> int:
 func is_empty():
 	return local_cells.is_empty()
 
-## relative_coords ####################################
+## coords ####################################
 
 func relative_coords(coord: Vector2i) -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
 	for lc in local_cells:
-		ret.append(lc + coord)
+		ret.append(lc.coord + coord)
 	return ret
 
 func grid_coords() -> Array[Vector2i]:
 	return relative_coords(root_coord)
+
+func local_coords() -> Array[Vector2i]:
+	var ret: Array[Vector2i] = []
+	for lc in local_cells:
+		ret.append(lc.coord)
+	return ret
 
 ## move ####################################
 
 func move_once(dir=Vector2.DOWN):
 	root_coord += dir
 	for lc in local_cells:
-		lc += dir
+		lc.coord += dir
 
 ## rotate ####################################
 
-func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
-	var new_cells: Array[Vector2i] = []
+# maybe drop this and just change them in-place
+# feels bad to dupe the rotation logic
+func rotated_local_cells(dir=Vector2i.RIGHT) -> Array[BloxCell]:
+	var new_cells: Array[BloxCell] = []
 	for c in local_cells:
 		match(dir):
 			Vector2i.RIGHT:
-				new_cells.append(Vector2i(-c.y, c.x))
+				new_cells.append(BloxCell.new({
+					coord=Vector2i(-c.coord.y, c.coord.x),
+					color=c.color,
+					}))
 			Vector2i.LEFT:
-				new_cells.append(Vector2i(c.y, -c.x))
+				new_cells.append(BloxCell.new({
+					coord=Vector2i(c.coord.y, -c.coord.x),
+					color=c.color,
+					}))
 
-	return BloxPiece.ensure_top_left(new_cells)
+	return BloxPiece.ensure_top_left_cells(new_cells)
+
+func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
+	var new_cells: Array[Vector2i] = []
+	for c in rotated_local_cells():
+		new_cells.append(c.coord)
+	return new_cells
 
 func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
@@ -144,7 +183,7 @@ func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 
 func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
 	root_coord += bump
-	local_cells = rotated_local_coords(dir)
+	local_cells = rotated_local_cells(dir)
 
 ## remove grid coord ####################################
 
@@ -152,17 +191,16 @@ func remove_grid_coord(grid_coord: Vector2i):
 	var local_coord = grid_coord - root_coord
 	if not local_coord in local_cells:
 		Log.warn("Tried to remove non-existent local_cell!")
-	local_cells.erase(local_coord)
+	local_cells.assign(local_cells.filter(func(cell):
+		return not cell.coord == local_coord))
 
 ## cell color ####################################
 
 # returns the color for the cell at the passed GRID coordinate
 func get_coord_color(grid_coord: Vector2i):
 	var local_coord = grid_coord - root_coord
-	if not local_coord in local_cells:
-		Log.warn("Tried to get color for non-existent local_cell!")
 
-	return color
-	# TODO refactor into local_cell data type (with color)
-	# var cell = local_cell_data_dict().get(local_coord)
-	# return cell.color
+	for c in local_cells:
+		if c.coord == local_coord:
+			return c.color
+	Log.warn("Tried to get color for non-existent local_cell!")
