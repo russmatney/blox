@@ -75,32 +75,43 @@ func queue_pieces(count=7):
 ## tick ################################################
 
 var tick_every = 0.4
+# TODO flags for game logic
+# - compose from current jokers/fathers/characters
 func tick():
 	await get_tree().create_timer(tick_every).timeout
 
-	var did_change = grid.apply_step_tetris()
+	var did_step = grid.apply_step_tetris()
 
-	# TODO flags for game logic - compose from current jokers/fathers/characters
 	# puyo split - if any splits, need to apply_step_tetris after splitting so other cells fall
-	did_change = did_change or grid.apply_split_puyo()
+	var did_split = false
+	if not did_step:
+		did_split = grid.apply_split_puyo()
 
-	render()
-
-	if did_change:
+	if did_step or did_split:
+		render()
 		tick()
 		return # wait to clear until we're all settled
+
+	var did_clear = false
 
 	# puyo clear
 	var groups = grid.clear_groups()
 	if not groups.is_empty():
+		did_clear = true
 		# TODO group-clear animation/sound
-		pass
 
 	# tetris clear
 	var ct = grid.clear_rows()
 	if ct > 0:
+		did_clear = true
 		# TODO row-clear animation/sound
-		pass
+
+	if did_clear:
+		render()
+		tick()
+		return # wait to queue/next-piece until we're all settled
+
+	render()
 
 	if len(piece_queue) < 4:
 		queue_pieces()

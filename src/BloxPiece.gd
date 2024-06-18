@@ -32,7 +32,7 @@ static func shapes():
 # TODO probably configurable/set by some theme
 static func random_cell_color():
 	return [Color.PERU, Color.AQUAMARINE, Color.CRIMSON,
-		Color.CORAL, Color.TEAL, Color.TOMATO,
+		# Color.CORAL, Color.TEAL, Color.TOMATO,
 		].pick_random()
 
 static func random():

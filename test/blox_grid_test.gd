@@ -241,10 +241,11 @@ func test_puyo_piece_split():
 
 ## puyo group clear ##################################################
 
-func test_puyo_group_clear():
+func test_puyo_group_clear_square():
 	var grid = BloxGrid.new({
 		width=2, height=2,
 		})
+	grid.puyo_group_size = 4
 	var p = BloxPiece.new({cells=[
 		Vector2i(), Vector2i(1, 0),
 		Vector2i(0, 1), Vector2i(1, 1),
@@ -261,6 +262,44 @@ func test_puyo_group_clear():
 		Vector2i(), Vector2i(1, 0),
 		Vector2i(0, 1), Vector2i(1, 1),
 		])
+
+	var ret = grid.clear_groups()
+
+	# should remove 4 cells
+	assert_array(ret).contains([4])
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(0)
+	assert_int(len(crds)).is_equal(0)
+
+func test_puyo_group_clear_t():
+	var grid = BloxGrid.new({
+		width=3, height=3,
+		})
+	grid.puyo_group_size = 4
+	var color = Color.RED
+	grid.add_piece(
+		BloxPiece.new({cells=[
+			Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0),
+							Vector2i(1, 1),
+			# 				Vector2i(1, 0),
+			# Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1),
+			],
+			coord=Vector2i(0, 0), color=color}))
+
+	var crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(1)
+	assert_int(len(crds)).is_equal(4)
+	# assert_array(crds).contains([
+	# 						Vector2i(1, 0),
+	# 		Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1),
+	# 	])
+
+	# fall and settle
+	grid.apply_step_tetris()
+	grid.apply_split_puyo()
+	grid.apply_step_tetris()
+	grid.apply_step_tetris()
 
 	var ret = grid.clear_groups()
 

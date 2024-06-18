@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Resource_v1mye"]
 script = ExtResource("2_viwvj")
-width = 6
-height = 10
+width = 8
+height = 12
 pieces = Array[Resource("res://src/BloxPiece.gd")]([])
 
 [node name="BloxBucket" type="Node2D"]
