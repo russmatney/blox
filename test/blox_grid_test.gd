@@ -180,9 +180,9 @@ func test_rotate_piece():
 
 	# rotate once left (counter-clockwise)
 	grid.rotate_piece(p, Vector2i.LEFT)
-	assert_array(p.local_coords()).contains([Vector2i(), Vector2i(0, -1)])
+	assert_array(p.local_coords()).contains([Vector2i(0, 1), Vector2i()])
 	crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(1, 1), Vector2i(1, 0)])
+	assert_array(crds).contains([Vector2i(1, 2), Vector2i(1, 1)])
 
 func test_rotate_piece_bump():
 	var grid = BloxGrid.new({width=2, height=2})
@@ -195,7 +195,7 @@ func test_rotate_piece_bump():
 
 	# rotate clockwise, should bump to right
 	grid.rotate_piece(p, Vector2i.RIGHT)
-	assert_array(p.local_coords()).contains([Vector2i(), Vector2i(-1, 0)])
+	assert_array(p.local_coords()).contains([Vector2i(1, 0), Vector2i(0, 0)])
 	crds = grid.piece_coords()
 	assert_array(crds).contains([Vector2i(), Vector2i(1, 0)])
 

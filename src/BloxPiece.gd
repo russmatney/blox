@@ -145,8 +145,7 @@ func local_coords() -> Array[Vector2i]:
 
 func move_once(dir=Vector2.DOWN):
 	root_coord += dir
-	for lc in local_cells:
-		lc.coord += dir
+	# no need to update local_cells here!
 
 ## rotate ####################################
 
