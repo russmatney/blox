@@ -9,5 +9,5 @@ func to_pretty():
 	return {coord=coord, color=color}
 
 func _init(opts={}):
-	coord = opts.get("coord")
-	color = opts.get("color")
+	coord = opts.get("coord", Vector2i())
+	color = opts.get("color", Color.PERU)
