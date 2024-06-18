@@ -9,6 +9,8 @@ class_name BloxGrid
 
 @export var pieces: Array[BloxPiece] = []
 
+@export var puyo_group_size: int = 4
+
 func to_pretty():
 	return {width=width, height=height, pieces=pieces}
 
@@ -282,7 +284,7 @@ func clear_groups() -> Array:
 		var color = piece.get_coord_color(crd)
 		var group = get_common_neighbors(crd, crd_to_piece,
 			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
-		if len(group) > 3:
+		if len(group) >= puyo_group_size:
 			Log.info("found group large enough to remove!", group)
 			groups_cleared.append(len(group))
 			for c in group:

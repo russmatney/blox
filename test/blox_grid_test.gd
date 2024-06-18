@@ -195,7 +195,7 @@ func test_rotate_piece_bump():
 
 	# rotate clockwise, should bump to right
 	grid.rotate_piece(p, Vector2i.RIGHT)
-	assert_array(p.local_cells).contains([Vector2i(), Vector2i(-1, 0)])
+	assert_array(p.local_coords()).contains([Vector2i(), Vector2i(-1, 0)])
 	crds = grid.piece_coords()
 	assert_array(crds).contains([Vector2i(), Vector2i(1, 0)])
 
@@ -242,12 +242,16 @@ func test_puyo_piece_split():
 ## puyo group clear ##################################################
 
 func test_puyo_group_clear():
-	var grid = BloxGrid.new({width=2, height=2})
-	# TODO specify same color for cells
+	var grid = BloxGrid.new({
+		width=2, height=2,
+		})
 	var p = BloxPiece.new({cells=[
 		Vector2i(), Vector2i(1, 0),
 		Vector2i(0, 1), Vector2i(1, 1),
-		], coord=Vector2i()})
+		],
+		coord=Vector2i(),
+		color=Color.RED,
+		})
 	grid.add_piece(p)
 
 	var crds = grid.piece_coords()

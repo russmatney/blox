@@ -189,7 +189,7 @@ func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
 
 func remove_grid_coord(grid_coord: Vector2i):
 	var local_coord = grid_coord - root_coord
-	if not local_coord in local_cells:
+	if not local_coord in local_coords():
 		Log.warn("Tried to remove non-existent local_cell!")
 	local_cells.assign(local_cells.filter(func(cell):
 		return not cell.coord == local_coord))
