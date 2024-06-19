@@ -44,8 +44,8 @@ func add_piece(p: BloxPiece, skip_check=false) -> bool:
 
 func all_coords() -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
-	for x in range(width):
-		for y in range(height):
+	for y in range(height):
+		for x in range(width):
 			ret.append(Vector2i(x, y))
 	return ret
 

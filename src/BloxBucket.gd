@@ -84,6 +84,7 @@ func queue_pieces(count=7):
 
 # TODO flags for game logic
 # - compose from current jokers/fathers/characters
+# TODO move the logic into grid and expose some opts/config/signals
 func tick():
 	if tick_every > 0.0:
 		await get_tree().create_timer(tick_every).timeout
@@ -144,7 +145,10 @@ func render_bucket_cells():
 	for i in range(len(all_coords)):
 		var coord = all_coords[i]
 		var cr = ColorRect.new()
-		cr.color = Color.DIM_GRAY if i % 2 == 0 else Color.DARK_GRAY
+		match (i % 3):
+			1: cr.color = Color.DARK_GRAY
+			2: cr.color = Color.DIM_GRAY
+			_: cr.color = Color.GRAY
 		var cell_size_adj = cell_size * (1 - size_factor)
 		cr.position = Vector2(coord) * cell_size + (cell_size_adj/2.0)
 		cr.size = cell_size - cell_size_adj
