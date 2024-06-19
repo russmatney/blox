@@ -97,7 +97,7 @@ func start_next_piece():
 		Log.warn("No piece found! aborting start_next_piece")
 		return
 
-	current_piece.set_initial_coord(grid.entry_coord())
+	current_piece.set_root_coord(grid.entry_coord())
 	var can_add = grid.can_add_piece(current_piece)
 	if can_add:
 		Log.info("Adding next piece!", current_piece)

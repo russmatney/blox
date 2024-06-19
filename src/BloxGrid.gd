@@ -197,8 +197,7 @@ func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	# also there's probably interest in animating the change
 	var to_fall = []
 	for piece in pieces:
-		var should_move = can_piece_move(piece, dir)
-		if should_move:
+		if can_piece_move(piece, dir):
 			to_fall.append(piece)
 
 	# drop them all at once

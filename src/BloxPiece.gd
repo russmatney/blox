@@ -99,8 +99,8 @@ func _init(opts={}):
 		grid_cells.assign(xs)
 
 # adjusts the cells relative to the passed coord
-func set_initial_coord(coord: Vector2i):
-	grid_cells.assign(BloxPiece.adjust_cells_relative(grid_cells, coord))
+func set_root_coord(coord: Vector2i):
+	grid_cells = BloxPiece.adjust_cells_relative(grid_cells, coord)
 
 func cell_count() -> int:
 	return len(grid_cells)
