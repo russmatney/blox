@@ -14,7 +14,7 @@ var piece_queue: Array[BloxPiece] = []
 var current_piece
 var tick_every = 0.4
 
-var coord_to_rect = {}
+var cell_id_to_rect = {}
 
 
 signal board_settled
@@ -33,7 +33,7 @@ func _ready():
 	grid.on_rows_cleared.connect(on_rows_cleared)
 	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 
-	render_grid_cells()
+	render_grid_cell_bg()
 	render()
 	start_next_piece()
 
@@ -44,7 +44,7 @@ func on_cells_cleared(cell_groups: Array):
 	var t = 1.5
 	for cells in cell_groups:
 		anim_cell_group_clear(cells, t)
-	await get_tree().create_timer(t).timeout
+	# await get_tree().create_timer(t).timeout
 	# TODO sound
 	# TODO animation
 	# TODO score?
@@ -53,12 +53,22 @@ func anim_cell_group_clear(cells, t=0.5):
 	var tween = create_tween()
 	for color_rect in get_color_rects(cells):
 		Log.pr("tweening color rect", color_rect)
-		tween.tween_property(color_rect, "color", Color.WHITE, t)
+		tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
+
+	for color_rect in get_color_rects(cells):
+		tween.tween_callback(func():
+			color_rect.queue_free()
+			# TODO clear cell_id_to_rect dict!
+			)
 
 func get_color_rects(cells) -> Array[ColorRect]:
 	var rects: Array[ColorRect] = []
 	for c in cells:
-		rects.append(coord_to_rect.get(c.coord))
+		var rect = cell_id_to_rect.get(c.get_instance_id())
+		if not rect:
+			Log.pr("no rect found for cell", c)
+		else:
+			rects.append(rect)
 	return rects
 
 ## on rows cleared ################################################
@@ -66,6 +76,19 @@ func get_color_rects(cells) -> Array[ColorRect]:
 func on_rows_cleared(rows: Array):
 	Log.pr("rows cleared", rows)
 	# TODO animate the rows grouping and leaving
+	var tween = create_tween()
+	var t = 0.5
+	var rects = []
+	for cells in rows:
+		for color_rect in get_color_rects(cells):
+			rects.append(color_rect)
+			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
+
+	for color_rect in rects:
+		tween.tween_callback(func():
+			color_rect.queue_free()
+			# TODO clear cell_id_to_rect dict!
+			)
 
 ## on grid update ################################################
 
@@ -160,7 +183,7 @@ func tick():
 ## render ################################################
 
 # should call this whenever grid size changes
-func render_grid_cells():
+func render_grid_cell_bg():
 	for ch in get_children():
 		if ch.is_in_group(BUCKET_CELL_GROUP):
 			ch.free()
@@ -189,24 +212,26 @@ func render():
 	render_pieces()
 
 func render_pieces():
-	coord_to_rect = {}
-	for ch in get_children():
-		if ch.is_in_group(PIECE_CELL_GROUP):
-			ch.free()
-
 	var size_factor = 0.8
 	for piece in grid.pieces:
 		for cell in piece.get_grid_cells():
+
 			var coord = cell.coord
-			var cr = ColorRect.new()
-			if cell.color:
-				cr.color = cell.color
-			else:
-				cr.color = piece.color
+			var cr = cell_id_to_rect.get(cell.get_instance_id())
+			if not cr:
+				cr = ColorRect.new()
+				cell_id_to_rect[cell.get_instance_id()] = cr
+
+				if cell.color:
+					cr.color = cell.color
+				else:
+					cr.color = piece.color
+
+				add_child.call_deferred(cr)
+
 			var cell_size_adj = cell_size * (1 - size_factor)
+			# TODO tween movement?
 			cr.position = Vector2(coord) * cell_size + (cell_size_adj/2.0)
 			cr.size = cell_size - cell_size_adj
 			cr.name = "PieceCell-%s-%s" % [coord.x, coord.y]
 			cr.add_to_group(PIECE_CELL_GROUP)
-			coord_to_rect[coord] = cr
-			add_child(cr)
