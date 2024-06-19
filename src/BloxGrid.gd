@@ -97,19 +97,21 @@ func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
 	var new_cells = piece.relative_coords(piece.root_coord + dir)
 	var existing_cells = piece.grid_coords()
-	var conflicts = calc_conflicts(new_cells, existing_cells)
+	var conflicts = calc_conflicts(new_cells, existing_cells, "movement")
 	return conflicts.is_empty()
 
 # returns true if the new_cell coords point to an existing piece
 # the existing_cells are ignored, and are assumed to belong to the moving/rotating piece
 # PERF could pass an optional early return flag
-func calc_conflicts(new_cells: Array[Vector2i], existing_cells: Array[Vector2i]) -> Array[Vector2i]:
+func calc_conflicts(new_cells: Array[Vector2i], existing_cells: Array[Vector2i], log_label="") -> Array[Vector2i]:
 	var all_coords_dict = all_coords_as_dict()
 	var conflicts: Array[Vector2i] = []
 
 	for c in new_cells:
 		if not c in all_coords_dict:
-			Log.info("Cannot move/rotate into level boundary", c)
+			# don't log this when we're just hitting the floor
+			if not (c.y >= height and log_label == "movement"):
+				Log.info("%s conflict with level boundary" % log_label, c)
 			conflicts.append(c) # beyond coords of level
 			# return true
 
@@ -117,7 +119,7 @@ func calc_conflicts(new_cells: Array[Vector2i], existing_cells: Array[Vector2i])
 		if c in existing_cells:
 			continue # ignore existing cells (b/c they'll move out of the way)
 		if all_coords_dict.get(c):
-			Log.info("Cannot move/rotate into existing cell", c)
+			Log.info("%s conflict with existing cell" % log_label, c)
 			conflicts.append(c) # there's an occupied cell in the way
 	return conflicts
 
@@ -135,7 +137,7 @@ func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
 	var existing_cells = piece.grid_coords()
 
 	# bump/push away from edges/pieces to make the rotation fit
-	var conflicts = calc_conflicts(new_cells, existing_cells)
+	var conflicts = calc_conflicts(new_cells, existing_cells, "rotation")
 
 	if conflicts.is_empty():
 		return [true, Vector2i()]
@@ -164,7 +166,7 @@ func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
 	for c in new_cells:
 		bumped_cells.append(c + bump_direction)
 
-	conflicts = calc_conflicts(bumped_cells, existing_cells)
+	conflicts = calc_conflicts(bumped_cells, existing_cells, "bump_rotation")
 
 	if conflicts.is_empty():
 		return [true, bump_direction]
@@ -290,9 +292,7 @@ func clear_groups() -> Array:
 		var color = piece.get_coord_color(crd)
 		var group = get_common_neighbors(crd, crd_to_piece,
 			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
-		Log.pr("collected color group", color, len(group))
 		if len(group) >= puyo_group_size:
-			Log.info("found group large enough to remove!", group)
 			groups_cleared.append(len(group))
 			for c in group:
 				remove_at_coord(c)

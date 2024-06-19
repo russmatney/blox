@@ -22,8 +22,6 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
-	Log.pr("I'm ready!", self)
-
 	render()
 	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 	start_next_piece()
@@ -107,7 +105,7 @@ func tick():
 	var groups = grid.clear_groups()
 	if not groups.is_empty():
 		did_clear = true
-		Log.pr("groups cleared", groups)
+		Log.pr("cells cleared", groups)
 		# TODO group-clear animation/sound
 
 	# tetris clear
