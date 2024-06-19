@@ -22,10 +22,7 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
-	grid.on_update.connect(func(state):
-		Log.pr("grid update", state)
-		render())
-
+	grid.on_update.connect(on_grid_update)
 	grid.on_cells_cleared.connect(func(cells):
 		# TODO sound
 		# TODO animation
@@ -42,6 +39,24 @@ func _ready():
 
 	if Engine.is_editor_hint():
 		request_ready()
+
+func on_grid_update(state):
+	# TODO clear current_piece when it lands on something
+	# this will prevent controling the parts after the split
+	Log.pr("grid update", state)
+	match (state):
+		BloxGrid.STATE_SETTLED:
+			current_piece = null # when settled, no current piece
+			render()
+		BloxGrid.STATE_SPLITTING:
+			current_piece = null # on first split, prevent more movement control
+			render()
+		BloxGrid.STATE_CLEARING:
+			current_piece = null # if clearing, no current piece
+			render()
+		BloxGrid.STATE_FALLING:
+			if current_piece:
+				render()
 
 ## input ################################################
 
@@ -95,7 +110,7 @@ func queue_pieces(count=7):
 ## tick ################################################
 
 func tick():
-	if tick_every > 0.0:
+	if current_piece and tick_every > 0.0:
 		await get_tree().create_timer(tick_every).timeout
 
 	if grid.step({

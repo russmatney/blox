@@ -375,7 +375,7 @@ func step(opts={}) -> bool:
 	var did_clear = false
 
 	# puyo same-color group clear
-	if opts.get("puyo_groups", false):
+	if opts.get("puyo_group_clear", false):
 		var groups = clear_groups()
 		if not groups.is_empty():
 			Log.info("cells cleared", groups.map(func(xs): return len(xs)))
@@ -383,7 +383,7 @@ func step(opts={}) -> bool:
 			on_cells_cleared.emit(groups)
 
 	# tetris row clear
-	if opts.get("tetris_rows", false):
+	if opts.get("tetris_row_clear", false):
 		var rows = clear_rows()
 		if not rows.is_empty():
 			Log.info("rows cleared", len(rows))
