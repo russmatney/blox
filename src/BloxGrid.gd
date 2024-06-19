@@ -352,23 +352,19 @@ signal on_update(state)
 signal on_cells_cleared(cells)
 signal on_rows_cleared(rows)
 
-# TODO flags for game logic
-# - compose from current jokers/fathers/characters?
-# - pass in via options, but probably some stored resource/game-mode data
-
 # Steps the grid through the game logic
 # returns true if anything changed
 # (in which case this should likely be called again soon)
 func step(opts={}) -> bool:
-	var direction = opts.get("direction", Vector2i.DOWN)
+	var rules = GridRules.new(opts)
 
 	# move everything that can one step, if possible
-	if apply_step_tetris(direction):
+	if apply_step_tetris(rules.step_direction):
 		on_update.emit(STATE_FALLING)
 		return true
 
 	# puyo piece split
-	if opts.get("puyo_split", false) and apply_split_puyo(direction):
+	if rules.puyo_split and apply_split_puyo(rules.step_direction):
 		on_update.emit(STATE_SPLITTING)
 		return true
 
@@ -376,7 +372,7 @@ func step(opts={}) -> bool:
 	var did_clear = false
 
 	# puyo same-color group clear
-	if opts.get("puyo_group_clear", false):
+	if rules.puyo_group_clear:
 		var groups = clear_groups()
 		if not groups.is_empty():
 			Log.info("cells cleared", groups.map(func(xs): return len(xs)))
@@ -384,7 +380,7 @@ func step(opts={}) -> bool:
 			on_cells_cleared.emit(groups)
 
 	# tetris row clear
-	if opts.get("tetris_row_clear", false):
+	if rules.tetris_row_clear:
 		var rows = clear_rows()
 		if not rows.is_empty():
 			Log.info("rows cleared", len(rows))

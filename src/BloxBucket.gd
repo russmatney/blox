@@ -33,6 +33,7 @@ func _ready():
 	grid.on_rows_cleared.connect(on_rows_cleared)
 	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 
+	render_grid_cells()
 	render()
 	start_next_piece()
 
@@ -145,7 +146,7 @@ func tick():
 	# if grid.state -> something, await some signal?
 
 	if grid.step({
-			direction=Vector2i.DOWN,
+			step_direction=Vector2i.DOWN,
 			puyo_split=true,
 			tetris_row_clear=true,
 			puyo_group_clear=true,
@@ -158,15 +159,8 @@ func tick():
 
 ## render ################################################
 
-func render():
-	if not is_inside_tree():
-		return
-	Log.info("rendering")
-
-	render_bucket_cells()
-	render_pieces()
-
-func render_bucket_cells():
+# should call this whenever grid size changes
+func render_grid_cells():
 	for ch in get_children():
 		if ch.is_in_group(BUCKET_CELL_GROUP):
 			ch.free()
@@ -186,6 +180,13 @@ func render_bucket_cells():
 		cr.name = "BucketCell-%s-%s" % [coord.x, coord.y]
 		cr.add_to_group(BUCKET_CELL_GROUP)
 		add_child(cr)
+
+func render():
+	if not is_inside_tree():
+		return
+	Log.info("rendering")
+
+	render_pieces()
 
 func render_pieces():
 	coord_to_rect = {}
