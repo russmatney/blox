@@ -230,7 +230,8 @@ func clear_rows() -> Array:
 			# remove from each piece's cells
 			for crd in row_crds:
 				var cell = remove_at_coord(crd)
-				cells.append(cell)
+				if cell:
+					cells.append(cell)
 			rows_cleared.append(cells)
 
 	return rows_cleared
@@ -294,7 +295,8 @@ func clear_groups() -> Array:
 			var group_cells = []
 			for c in group_coords:
 				var cell = remove_at_coord(c)
-				group_cells.append(cell)
+				if cell:
+					group_cells.append(cell)
 			groups_cleared.append(group_cells)
 
 	return groups_cleared

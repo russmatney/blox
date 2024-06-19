@@ -14,6 +14,9 @@ var piece_queue: Array[BloxPiece] = []
 var current_piece
 var tick_every = 0.4
 
+var coord_to_rect = {}
+
+
 signal board_settled
 
 func to_pretty():
@@ -22,6 +25,9 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
+	if Engine.is_editor_hint():
+		return
+
 	grid.on_update.connect(on_grid_update)
 	grid.on_cells_cleared.connect(on_cells_cleared)
 	grid.on_rows_cleared.connect(on_rows_cleared)
@@ -30,16 +36,29 @@ func _ready():
 	render()
 	start_next_piece()
 
-	if Engine.is_editor_hint():
-		request_ready()
-
 ## on cells cleared ################################################
 
 func on_cells_cleared(cell_groups: Array):
 	Log.pr("cells cleared", cell_groups)
+	var t = 1.5
+	for cells in cell_groups:
+		anim_cell_group_clear(cells, t)
+	await get_tree().create_timer(t).timeout
 	# TODO sound
 	# TODO animation
 	# TODO score?
+
+func anim_cell_group_clear(cells, t=0.5):
+	var tween = create_tween()
+	for color_rect in get_color_rects(cells):
+		Log.pr("tweening color rect", color_rect)
+		tween.tween_property(color_rect, "color", Color.WHITE, t)
+
+func get_color_rects(cells) -> Array[ColorRect]:
+	var rects: Array[ColorRect] = []
+	for c in cells:
+		rects.append(coord_to_rect.get(c.coord))
+	return rects
 
 ## on rows cleared ################################################
 
@@ -59,10 +78,10 @@ func on_grid_update(state):
 			render()
 		BloxGrid.STATE_SPLITTING:
 			current_piece = null # on first split, prevent more movement control
-			render()
+			# render()
 		BloxGrid.STATE_CLEARING:
 			current_piece = null # if clearing, no current piece
-			render()
+			# render()
 		BloxGrid.STATE_FALLING:
 			if current_piece:
 				render()
@@ -122,6 +141,9 @@ func tick():
 	if current_piece and tick_every > 0.0:
 		await get_tree().create_timer(tick_every).timeout
 
+	# TODO how to wait until the animations are done?
+	# if grid.state -> something, await some signal?
+
 	if grid.step({
 			direction=Vector2i.DOWN,
 			puyo_split=true,
@@ -166,6 +188,7 @@ func render_bucket_cells():
 		add_child(cr)
 
 func render_pieces():
+	coord_to_rect = {}
 	for ch in get_children():
 		if ch.is_in_group(PIECE_CELL_GROUP):
 			ch.free()
@@ -184,4 +207,5 @@ func render_pieces():
 			cr.size = cell_size - cell_size_adj
 			cr.name = "PieceCell-%s-%s" % [coord.x, coord.y]
 			cr.add_to_group(PIECE_CELL_GROUP)
+			coord_to_rect[coord] = cr
 			add_child(cr)
