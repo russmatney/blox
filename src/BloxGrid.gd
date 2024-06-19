@@ -240,7 +240,7 @@ func clear_rows() -> Array:
 
 func split_piece_coord(piece: BloxPiece, grid_coord: Vector2i) -> void:
 	var cell = piece.remove_coord(grid_coord)
-	# maintain the same cell across 'splits'
+	# maintain the same cell object!
 	var new_p = BloxPiece.new({grid_cells=[cell]})
 	add_piece(new_p)
 

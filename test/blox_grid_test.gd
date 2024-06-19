@@ -207,6 +207,21 @@ func test_rotate_piece_bump():
 	crds = grid.piece_coords()
 	assert_array(crds).contains(rotated_bump)
 
+func test_rotate_piece_maintains_objects():
+	var grid = BloxGrid.new({width=3, height=3})
+	var p = BloxPiece.new({cells=[Vector2i(), Vector2i(1, 0)],
+		coord=Vector2i(1, 1)})
+	grid.add_piece(p)
+
+	var cell_instance_ids = p.get_grid_cells().map(func(c):
+		return c.get_instance_id())
+
+	grid.rotate_piece(p, Vector2i.RIGHT)
+
+	var updated_ids = p.get_grid_cells().map(func(c):
+		return c.get_instance_id())
+
+	assert_array(cell_instance_ids).is_equal(updated_ids)
 
 ## puyo split/fall ##################################################
 
@@ -245,6 +260,32 @@ func test_puyo_piece_split():
 		Vector2i(),
 		Vector2i(0, 1), Vector2i(1, 1),
 	])
+
+func test_puyo_split_maintains_ids():
+	var grid = BloxGrid.new({width=2, height=2})
+	var p = BloxPiece.new({cells=[
+		Vector2i(), Vector2i(1, 0),
+		Vector2i(0, 1),
+		]})
+	grid.add_piece(p)
+
+	var cell_instance_ids = p.get_grid_cells().map(func(c):
+		return c.get_instance_id())
+
+	grid.apply_split_puyo()
+
+	assert_int(len(grid.pieces)).is_equal(2)
+
+	var p1_ids = grid.pieces[0].get_grid_cells().map(func(c):
+		return c.get_instance_id())
+	var p2_ids = grid.pieces[1].get_grid_cells().map(func(c):
+		return c.get_instance_id())
+
+	assert_int(len(p1_ids)).is_equal(2)
+	assert_int(len(p2_ids)).is_equal(1)
+
+	assert_array(cell_instance_ids).contains(p1_ids)
+	assert_array(cell_instance_ids).contains(p2_ids)
 
 
 ## puyo group clear ##################################################
