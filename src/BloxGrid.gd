@@ -237,7 +237,11 @@ func clear_rows() -> int:
 
 func split_piece_coord(piece: BloxPiece, coord: Vector2i) -> void:
 	piece.remove_grid_coord(coord)
-	var new_p = BloxPiece.new({coord=coord, cells=[Vector2()], color=piece.color})
+	var new_p = BloxPiece.new({
+		coord=coord, cells=[Vector2()],
+		# TODO get color from cell at coord!
+		color=piece.color,
+		})
 	add_piece(new_p)
 
 # splits pieces apart based on room-to-fall beneath cells
@@ -284,6 +288,7 @@ func clear_groups() -> Array:
 		var color = piece.get_coord_color(crd)
 		var group = get_common_neighbors(crd, crd_to_piece,
 			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
+		Log.pr("collected color group", color, len(group))
 		if len(group) >= puyo_group_size:
 			Log.info("found group large enough to remove!", group)
 			groups_cleared.append(len(group))

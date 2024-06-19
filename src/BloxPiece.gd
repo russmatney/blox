@@ -141,6 +141,17 @@ func local_coords() -> Array[Vector2i]:
 		ret.append(lc.coord)
 	return ret
 
+# returns a list of new cells, adjusted based on root_coord
+func grid_cells() -> Array[BloxCell]:
+	var ret: Array[BloxCell] = []
+	for lc in local_cells:
+		ret.append(BloxCell.new({
+			color=lc.color,
+			coord=lc.coord + root_coord,
+			}))
+	return ret
+
+
 ## move ####################################
 
 func move_once(dir=Vector2.DOWN):
@@ -170,7 +181,7 @@ func rotated_local_cells(dir=Vector2i.RIGHT) -> Array[BloxCell]:
 
 func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 	var new_cells: Array[Vector2i] = []
-	for c in rotated_local_cells():
+	for c in rotated_local_cells(dir):
 		new_cells.append(c.coord)
 	return new_cells
 

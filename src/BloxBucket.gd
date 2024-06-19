@@ -106,6 +106,7 @@ func tick():
 	var groups = grid.clear_groups()
 	if not groups.is_empty():
 		did_clear = true
+		Log.pr("groups cleared", groups)
 		# TODO group-clear animation/sound
 
 	# tetris clear
@@ -158,9 +159,13 @@ func render_pieces():
 
 	var size_factor = 0.8
 	for piece in grid.pieces:
-		for coord in piece.grid_coords():
+		for cell in piece.grid_cells():
+			var coord = cell.coord
 			var cr = ColorRect.new()
-			cr.color = piece.color
+			if cell.color:
+				cr.color = cell.color
+			else:
+				cr.color = piece.color
 			var cell_size_adj = cell_size * (1 - size_factor)
 			cr.position = Vector2(coord) * cell_size + (cell_size_adj/2.0)
 			cr.size = cell_size - cell_size_adj
