@@ -240,11 +240,8 @@ func clear_rows() -> Array:
 
 func split_piece_coord(piece: BloxPiece, grid_coord: Vector2i) -> void:
 	var cell = piece.remove_coord(grid_coord)
-	var new_p = BloxPiece.new({
-		coord=grid_coord,
-		cells=[Vector2i()],
-		color=cell.color,
-		})
+	# maintain the same cell across 'splits'
+	var new_p = BloxPiece.new({grid_cells=[cell]})
 	add_piece(new_p)
 
 # splits pieces apart based on room-to-fall beneath cells

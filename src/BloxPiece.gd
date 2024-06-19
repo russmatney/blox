@@ -57,7 +57,7 @@ static func top_left_coord(coords) -> Vector2i:
 	var miny = coords.map(func(c): return c.y).min()
 	return Vector2i(minx, miny)
 
-# returns the passed coords offset such that the top-left coord is `to`
+# returns adjusted coords, offset such that the top-left coord is `to`
 static func reset_relative(coords: Array[Vector2i], to=Vector2i()) -> Array[Vector2i]:
 	var top_left = top_left_coord(coords)
 	var ret: Array[Vector2i] = []
@@ -65,15 +65,11 @@ static func reset_relative(coords: Array[Vector2i], to=Vector2i()) -> Array[Vect
 		ret.append(c - top_left + to)
 	return ret
 
-static func adjust_cells_relative(cells: Array[BloxCell], to=Vector2i()) -> Array[BloxCell]:
+# edits the cell coords in-place, maintaining the passed cell objects
+static func adjust_cells_relative(cells: Array[BloxCell], to=Vector2i()):
 	var top_left = top_left_coord(cells.map(func(c): return c.coord))
-	var ret: Array[BloxCell] = []
 	for c in cells:
-		ret.append(BloxCell.new({
-			coord=c.coord - top_left + to,
-			color=c.color,
-			}))
-	return ret
+		c.coord += to - top_left
 
 ## vars ################################################
 
@@ -98,9 +94,12 @@ func _init(opts={}):
 				}))
 		grid_cells.assign(xs)
 
+	if opts.get("grid_cells"):
+		grid_cells.append_array(opts.get("grid_cells"))
+
 # adjusts the cells relative to the passed coord
 func set_root_coord(coord: Vector2i):
-	grid_cells = BloxPiece.adjust_cells_relative(grid_cells, coord)
+	BloxPiece.adjust_cells_relative(grid_cells, coord)
 
 func cell_count() -> int:
 	return len(grid_cells)
@@ -134,35 +133,35 @@ func move_once(dir=Vector2.DOWN):
 
 ## rotate ####################################
 
-# TODO calc a center (vs corner) to rotate-around here?
-func rotated_cells(dir=Vector2i.RIGHT) -> Array[BloxCell]:
-	var og_top_left = BloxPiece.top_left_coord(grid_cells.map(func(c): return c.coord))
-	var new_cells: Array[BloxCell] = []
-	for c in grid_cells:
-		match(dir):
-			Vector2i.RIGHT:
-				new_cells.append(BloxCell.new({
-					coord=Vector2i(-c.coord.y, c.coord.x),
-					color=c.color,
-					}))
-			Vector2i.LEFT:
-				new_cells.append(BloxCell.new({
-					coord=Vector2i(c.coord.y, -c.coord.x),
-					color=c.color,
-					}))
+# TODO calc/include a center (vs corner) to rotate around here?
+func rotate_coord(coord: Vector2i, dir=Vector2i.RIGHT) -> Vector2i:
+	match(dir):
+		Vector2i.RIGHT:
+			return Vector2i(-coord.y, coord.x)
+		Vector2i.LEFT:
+			return Vector2i(coord.y, -coord.x)
+		_:
+			Log.warn("Unhandled rotate direction", dir)
+			return coord
 
-	return BloxPiece.adjust_cells_relative(new_cells, og_top_left)
-
+# Return a new set of potential coords to test if rotation is possible
 func rotated_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
-	var new_cells: Array[Vector2i] = []
-	for c in rotated_cells(dir):
-		new_cells.append(c.coord)
-	return new_cells
+	var og_top_left = BloxPiece.top_left_coord(grid_cells.map(func(c): return c.coord))
+	var coords: Array[Vector2i] = []
+	for c in grid_cells:
+		coords.append(rotate_coord(c.coord, dir))
+	return BloxPiece.reset_relative(coords, og_top_left)
 
+# rotate in place to maintain object ids
+# (could use a different key, like piece-id and cell index...)
 func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
 	if bump != Vector2i.ZERO:
 		move_once(bump)
-	grid_cells = rotated_cells(dir)
+
+	var og_top_left = BloxPiece.top_left_coord(grid_cells.map(func(c): return c.coord))
+	for c in grid_cells:
+		c.coord = rotate_coord(c.coord, dir)
+	BloxPiece.adjust_cells_relative(grid_cells, og_top_left)
 
 ## remove grid coord ####################################
 
