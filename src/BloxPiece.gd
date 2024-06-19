@@ -197,12 +197,17 @@ func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
 
 ## remove grid coord ####################################
 
-func remove_grid_coord(grid_coord: Vector2i):
+func remove_grid_coord(grid_coord: Vector2i) -> BloxCell:
 	var local_coord = grid_coord - root_coord
-	if not local_coord in local_coords():
-		Log.warn("Tried to remove non-existent local_cell!")
-	local_cells.assign(local_cells.filter(func(cell):
-		return not cell.coord == local_coord))
+	var cell
+	for c in local_cells:
+		if c.coord == local_coord:
+			cell = c
+	if cell:
+		local_cells.erase(cell)
+		return cell
+	Log.error("Tried to remove non-existent local_cell!")
+	return BloxCell.new() # ugh
 
 ## cell color ####################################
 

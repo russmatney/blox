@@ -187,7 +187,7 @@ func remove_at_coord(coord: Vector2i):
 	if piece.is_empty():
 		pieces.erase(piece)
 
-## tetris ################################################
+## tetris fall ################################################
 
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	# hmm i think we should do this bottom up and apply the fall right away
@@ -206,6 +206,8 @@ func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 
 	var did_move = not to_fall.is_empty()
 	return did_move
+
+## tetris clear ################################################
 
 # returns the number of rows that were cleared
 func clear_rows() -> int:
@@ -235,12 +237,12 @@ func clear_rows() -> int:
 
 ## puyo split ################################################
 
-func split_piece_coord(piece: BloxPiece, coord: Vector2i) -> void:
-	piece.remove_grid_coord(coord)
+func split_piece_coord(piece: BloxPiece, grid_coord: Vector2i) -> void:
+	var cell = piece.remove_grid_coord(grid_coord)
 	var new_p = BloxPiece.new({
-		coord=coord, cells=[Vector2()],
-		# TODO get color from cell at coord!
-		color=piece.color,
+		coord=grid_coord,
+		cells=[Vector2()],
+		color=cell.color,
 		})
 	add_piece(new_p)
 
