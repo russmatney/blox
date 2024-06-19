@@ -1,5 +1,6 @@
 @tool
 extends Node2D
+class_name BloxBucket
 
 ## vars ################################################
 
@@ -11,6 +12,9 @@ const PIECE_CELL_GROUP="piece_cells"
 
 var piece_queue: Array[BloxPiece] = []
 var current_piece
+var tick_every = 0.4
+
+signal board_settled
 
 func to_pretty():
 	return {grid=grid}
@@ -20,9 +24,8 @@ func to_pretty():
 func _ready():
 	Log.pr("I'm ready!", self)
 
-	# shuffle next-pieces
-	queue_pieces(7)
 	render()
+	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 	start_next_piece()
 
 	if Engine.is_editor_hint():
@@ -50,6 +53,9 @@ func _input(event):
 ## start_next_piece ################################################
 
 func start_next_piece():
+	if len(piece_queue) < 4:
+		queue_pieces()
+
 	current_piece = piece_queue.pop_front()
 	if current_piece == null:
 		Log.warn("No piece found! aborting start_next_piece")
@@ -68,17 +74,19 @@ func start_next_piece():
 
 func queue_pieces(count=7):
 	# TODO proper tetris shuffle
+	# TODO consider cell color randomness
+	# probably pull pieces/colors from lists in the game-mode/settings
 	for i in range(count):
 		var p = BloxPiece.random()
 		piece_queue.append(p)
 
 ## tick ################################################
 
-var tick_every = 0.4
 # TODO flags for game logic
 # - compose from current jokers/fathers/characters
 func tick():
-	await get_tree().create_timer(tick_every).timeout
+	if tick_every > 0.0:
+		await get_tree().create_timer(tick_every).timeout
 
 	var did_step = grid.apply_step_tetris()
 
@@ -112,14 +120,14 @@ func tick():
 		return # wait to queue/next-piece until we're all settled
 
 	render()
-
-	if len(piece_queue) < 4:
-		queue_pieces()
-	start_next_piece()
+	# i.e. ready for next piece
+	board_settled.emit()
 
 ## render ################################################
 
 func render():
+	if not is_inside_tree():
+		return
 	Log.info("rendering")
 
 	render_bucket_cells()
