@@ -29,25 +29,17 @@ static func shapes():
 			]
 		]
 
-# TODO probably configurable/set by some theme
-static func random_cell_color():
-	return [Color.PERU, Color.AQUAMARINE, Color.CRIMSON,
-		# Color.CORAL, Color.TEAL, Color.TOMATO,
-		].pick_random()
-
 static func random():
-	return BloxPiece.new({
-		cells=shapes().pick_random()
-		})
+	return BloxPiece.new({cells=shapes().pick_random()})
 
 # maybe an odd calculation
 # should we ignore if a coord is both min and max in a direction?
 static func calc_coord_edges_in_cells(
-	coord: Vector2i, cells: Array[Vector2i]) -> Array[Vector2i]:
-	var minx = cells.map(func(c): return c.x).min()
-	var maxx = cells.map(func(c): return c.x).max()
-	var miny = cells.map(func(c): return c.y).min()
-	var maxy = cells.map(func(c): return c.y).max()
+	coord: Vector2i, coords: Array[Vector2i]) -> Array[Vector2i]:
+	var minx = coords.map(func(c): return c.x).min()
+	var maxx = coords.map(func(c): return c.x).max()
+	var miny = coords.map(func(c): return c.y).min()
+	var maxy = coords.map(func(c): return c.y).max()
 
 	var edges: Array[Vector2i] = []
 	if coord.x == minx:
@@ -60,111 +52,93 @@ static func calc_coord_edges_in_cells(
 		edges.append(Vector2i.DOWN)
 	return edges
 
-# returns the passed cells offset such that the top-left coord is 0,0
-static func ensure_top_left(cells: Array[Vector2i]) -> Array[Vector2i]:
-	var minx = cells.map(func(c): return c.x).min()
-	var miny = cells.map(func(c): return c.y).min()
+static func top_left_coord(coords) -> Vector2i:
+	var minx = coords.map(func(c): return c.x).min()
+	var miny = coords.map(func(c): return c.y).min()
+	return Vector2i(minx, miny)
 
+# returns the passed coords offset such that the top-left coord is `to`
+static func reset_relative(coords: Array[Vector2i], to=Vector2i()) -> Array[Vector2i]:
+	var top_left = top_left_coord(coords)
 	var ret: Array[Vector2i] = []
-	for c in cells:
-		ret.append(c - Vector2i(minx, miny))
+	for c in coords:
+		ret.append(c - top_left + to)
 	return ret
 
-static func ensure_top_left_cells(cells: Array[BloxCell]) -> Array[BloxCell]:
-	var minx = cells.map(func(c): return c.coord.x).min()
-	var miny = cells.map(func(c): return c.coord.y).min()
-
+static func adjust_cells_relative(cells: Array[BloxCell], to=Vector2i()) -> Array[BloxCell]:
+	var top_left = top_left_coord(cells.map(func(c): return c.coord))
 	var ret: Array[BloxCell] = []
 	for c in cells:
 		ret.append(BloxCell.new({
-			coord=c.coord - Vector2i(minx, miny),
+			coord=c.coord - top_left + to,
 			color=c.color,
 			}))
 	return ret
 
 ## vars ################################################
 
-@export var local_cells: Array[BloxCell] = []
-@export var root_coord = Vector2i()
-
-var color: Color
+@export var grid_cells: Array[BloxCell] = []
 
 func to_pretty():
-	return {local_cells=local_cells, root_coord=root_coord}
+	return {grid_cells=grid_cells}
 
 ## init ################################################
 
 func _init(opts={}):
+	var coord = opts.get("coord", Vector2i())
+
 	if opts.get("cells"):
-		var cells = []
+		var xs = []
 		for c in opts.get("cells"):
-			cells.append(BloxCell.new({
-				coord=c,
-				# make similar color choices to 'tetris-shuffle'
-				color=opts.get("color", BloxPiece.random_cell_color()),
+			xs.append(BloxCell.new({
+				# adjust relative based on coord
+				coord=c + coord,
+				# TODO pull from passed array of colors
+				color=opts.get("color"),
 				}))
-		local_cells.assign(cells)
+		grid_cells.assign(xs)
 
-	# drop one of these inputs
-	if opts.get("coord", opts.get("root_coord")):
-		root_coord = opts.get("coord", opts.get("root_coord"))
-
-	# no need for piece-color when we have cell-color?
-	if opts.get("color"):
-		color = opts.get("color")
-	else:
-		color = BloxPiece.random_cell_color()
-
+# adjusts the cells relative to the passed coord
 func set_initial_coord(coord: Vector2i):
-	root_coord = coord
+	grid_cells.assign(BloxPiece.adjust_cells_relative(grid_cells, coord))
 
 func cell_count() -> int:
-	return len(local_cells)
+	return len(grid_cells)
 
 func is_empty():
-	return local_cells.is_empty()
+	return grid_cells.is_empty()
+
+func get_grid_cells() -> Array[BloxCell]:
+	return grid_cells
 
 ## coords ####################################
 
-func relative_coords(coord: Vector2i) -> Array[Vector2i]:
-	var ret: Array[Vector2i] = []
-	for lc in local_cells:
-		ret.append(lc.coord + coord)
-	return ret
-
 func grid_coords() -> Array[Vector2i]:
-	return relative_coords(root_coord)
-
-func local_coords() -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
-	for lc in local_cells:
-		ret.append(lc.coord)
+	for c in grid_cells:
+		ret.append(c.coord)
 	return ret
 
-# returns a list of new cells, adjusted based on root_coord
-func grid_cells() -> Array[BloxCell]:
-	var ret: Array[BloxCell] = []
-	for lc in local_cells:
-		ret.append(BloxCell.new({
-			color=lc.color,
-			coord=lc.coord + root_coord,
-			}))
+# used to check movement in a direction
+func relative_coords(dir: Vector2i) -> Array[Vector2i]:
+	var ret: Array[Vector2i] = []
+	for lc in grid_cells:
+		ret.append(lc.coord + dir)
 	return ret
-
 
 ## move ####################################
 
 func move_once(dir=Vector2.DOWN):
-	root_coord += dir
-	# no need to update local_cells here!
+	for c in grid_cells:
+		c.coord += dir
 
 ## rotate ####################################
 
-# maybe drop this and just change them in-place
-# feels bad to dupe the rotation logic
-func rotated_local_cells(dir=Vector2i.RIGHT) -> Array[BloxCell]:
+# TODO calc a center (vs corner) to rotate-around here?
+func rotated_cells(dir=Vector2i.RIGHT) -> Array[BloxCell]:
+	var og_top_left = BloxPiece.top_left_coord(grid_cells.map(func(c): return c.coord))
 	var new_cells: Array[BloxCell] = []
-	for c in local_cells:
+	for c in grid_cells:
 		match(dir):
 			Vector2i.RIGHT:
 				new_cells.append(BloxCell.new({
@@ -177,45 +151,38 @@ func rotated_local_cells(dir=Vector2i.RIGHT) -> Array[BloxCell]:
 					color=c.color,
 					}))
 
-	return BloxPiece.ensure_top_left_cells(new_cells)
+	return BloxPiece.adjust_cells_relative(new_cells, og_top_left)
 
-func rotated_local_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
+func rotated_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
 	var new_cells: Array[Vector2i] = []
-	for c in rotated_local_cells(dir):
+	for c in rotated_cells(dir):
 		new_cells.append(c.coord)
 	return new_cells
 
-func rotated_grid_coords(dir=Vector2i.RIGHT) -> Array[Vector2i]:
-	var ret: Array[Vector2i] = []
-	for c in rotated_local_coords(dir):
-		ret.append(c + root_coord)
-	return ret
-
 func rotate_once(dir=Vector2i.RIGHT, bump=Vector2i.ZERO):
-	root_coord += bump
-	local_cells = rotated_local_cells(dir)
+	if bump != Vector2i.ZERO:
+		move_once(bump)
+	grid_cells = rotated_cells(dir)
 
 ## remove grid coord ####################################
 
-func remove_grid_coord(grid_coord: Vector2i) -> BloxCell:
-	var local_coord = grid_coord - root_coord
+func remove_coord(coord: Vector2i) -> BloxCell:
 	var cell
-	for c in local_cells:
-		if c.coord == local_coord:
+	for c in grid_cells:
+		if c.coord == coord:
 			cell = c
-	if cell:
-		local_cells.erase(cell)
-		return cell
-	Log.error("Tried to remove non-existent local_cell!")
-	return BloxCell.new() # ugh
+	if not cell:
+		Log.error("Tried to remove non-existent cell!", coord)
+		# TODO this happens when a group AND row remove the same cell
+		return
+	grid_cells.erase(cell)
+	return cell
 
 ## cell color ####################################
 
 # returns the color for the cell at the passed GRID coordinate
-func get_coord_color(grid_coord: Vector2i):
-	var local_coord = grid_coord - root_coord
-
-	for c in local_cells:
-		if c.coord == local_coord:
+func get_coord_color(coord: Vector2i):
+	for c in grid_cells:
+		if c.coord == coord:
 			return c.color
-	Log.warn("Tried to get color for non-existent local_cell!")
+	Log.warn("Tried to get color for non-existent cell!", coord)

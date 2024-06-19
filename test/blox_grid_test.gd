@@ -165,41 +165,47 @@ func test_rotate_piece():
 		coord=Vector2i(1, 1)})
 	grid.add_piece(p)
 
+	var initial = [Vector2i(1, 1), Vector2i(2, 1)]
+	var rotated_right = [Vector2i(1, 1), Vector2i(1, 2)]
+	var rotated_left = [Vector2i(1, 1), Vector2i(1, 2)]
+
 	var crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(1, 1), Vector2i(2, 1)])
+	assert_array(crds).contains(initial)
 
 	# rotate once right (clockwise)
 	grid.rotate_piece(p, Vector2i.RIGHT)
-	assert_array(p.local_coords()).contains([Vector2i(), Vector2i(0, 1)])
+	assert_array(p.grid_coords()).contains(rotated_right)
 	crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(1, 1), Vector2i(1, 2)])
+	assert_array(crds).contains(rotated_right)
 
 	# rotate back
 	grid.rotate_piece(p, Vector2i.LEFT)
-	assert_array(p.local_coords()).contains([Vector2i(), Vector2i(1, 0)])
+	assert_array(p.grid_coords()).contains(initial)
 	crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(1, 1), Vector2i(2, 1)])
+	assert_array(crds).contains(initial)
 
 	# rotate once left (counter-clockwise)
 	grid.rotate_piece(p, Vector2i.LEFT)
-	assert_array(p.local_coords()).contains([Vector2i(0, 1), Vector2i()])
+	assert_array(p.grid_coords()).contains(rotated_left)
 	crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(1, 2), Vector2i(1, 1)])
+	assert_array(crds).contains(rotated_left)
 
 func test_rotate_piece_bump():
 	var grid = BloxGrid.new({width=2, height=2})
-	var p = BloxPiece.new({cells=[Vector2i(), Vector2i(0, 1)],
-		coord=Vector2i()})
+	var p = BloxPiece.new({cells=[Vector2i(), Vector2i(0, 1)]})
 	grid.add_piece(p)
 
+	var initial = [Vector2i(), Vector2i(0, 1)]
+	var rotated_bump = [Vector2i(), Vector2i(1, 0)]
+
 	var crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(), Vector2i(0, 1)])
+	assert_array(crds).contains(initial)
 
 	# rotate clockwise, should bump to right
 	grid.rotate_piece(p, Vector2i.RIGHT)
-	assert_array(p.local_coords()).contains([Vector2i(1, 0), Vector2i(0, 0)])
+	assert_array(p.grid_coords()).contains(rotated_bump)
 	crds = grid.piece_coords()
-	assert_array(crds).contains([Vector2i(), Vector2i(1, 0)])
+	assert_array(crds).contains(rotated_bump)
 
 
 ## puyo split/fall ##################################################
@@ -209,7 +215,7 @@ func test_puyo_piece_split():
 	var p = BloxPiece.new({cells=[
 		Vector2i(), Vector2i(1, 0),
 		Vector2i(0, 1),
-		], coord=Vector2i()})
+		]})
 	grid.add_piece(p)
 
 	var crds = grid.piece_coords()
@@ -314,20 +320,24 @@ func test_puyo_group_clear_t():
 
 ## step/tick ############################################
 
+var step_opts = {
+	puyo_split=true,
+	puyo_group_clear=true,
+	tetris_row_clear=true,
+	}
+
 func test_step_settles_board():
 	var grid = BloxGrid.new({width=2, height=3})
 	var p = BloxPiece.new({cells=[Vector2i()], coord=Vector2i(1, 0)})
 	var ret = grid.add_piece(p)
 	assert_bool(ret).is_true()
 
-	while grid.step(): # run until false
+	while grid.step(step_opts): # run until false
 		pass
 
 	var crds = grid.piece_coords()
 	assert_int(len(crds)).is_equal(1)
 	assert_array(crds).contains([Vector2i(1, 2)])
-
-## bugs ############################################
 
 func test_tick_clears_piece_t():
 	var grid = BloxGrid.new({width=4, height=5})
@@ -340,7 +350,7 @@ func test_tick_clears_piece_t():
 		}))
 	assert_bool(ret).is_true()
 
-	while grid.step():
+	while grid.step(step_opts):
 		pass
 
 	var crds = grid.piece_coords()
@@ -359,7 +369,7 @@ func test_tick_clears_piece_s():
 		}))
 	assert_bool(ret).is_true()
 
-	while grid.step():
+	while grid.step(step_opts):
 		pass
 
 	var crds = grid.piece_coords()

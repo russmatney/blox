@@ -23,22 +23,31 @@ func to_pretty():
 
 func _ready():
 	grid.on_update.connect(on_grid_update)
-	grid.on_cells_cleared.connect(func(cells):
-		# TODO sound
-		# TODO animation
-		Log.pr("cells cleared", cells))
-
-	grid.on_rows_cleared.connect(func(rows):
-		# TODO sound
-		# TODO animation
-		Log.pr("rows cleared", rows))
+	grid.on_cells_cleared.connect(on_cells_cleared)
+	grid.on_rows_cleared.connect(on_rows_cleared)
+	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 
 	render()
-	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 	start_next_piece()
 
 	if Engine.is_editor_hint():
 		request_ready()
+
+## on cells cleared ################################################
+
+func on_cells_cleared(cell_groups: Array):
+	Log.pr("cells cleared", cell_groups)
+	# TODO sound
+	# TODO animation
+	# TODO score?
+
+## on rows cleared ################################################
+
+func on_rows_cleared(rows: Array):
+	Log.pr("rows cleared", rows)
+	# TODO animate the rows grouping and leaving
+
+## on grid update ################################################
 
 func on_grid_update(state):
 	# TODO clear current_piece when it lands on something
@@ -163,7 +172,7 @@ func render_pieces():
 
 	var size_factor = 0.8
 	for piece in grid.pieces:
-		for cell in piece.grid_cells():
+		for cell in piece.get_grid_cells():
 			var coord = cell.coord
 			var cr = ColorRect.new()
 			if cell.color:

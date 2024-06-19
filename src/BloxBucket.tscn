@@ -1,13 +1,83 @@
-[gd_scene load_steps=4 format=3 uid="uid://dwj7dbdpb053r"]
+[gd_scene load_steps=22 format=3 uid="uid://dwj7dbdpb053r"]
 
 [ext_resource type="Script" path="res://src/BloxBucket.gd" id="1_sogpg"]
+[ext_resource type="Script" path="res://src/BloxPiece.gd" id="2_2yqf0"]
 [ext_resource type="Script" path="res://src/BloxGrid.gd" id="2_viwvj"]
+
+[sub_resource type="Resource" id="Resource_0p6e2"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_gfgy6"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_c0ral"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_08qn8"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_xjlhb"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_7e7dc"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_8rpie"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_ixp43"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_ytshb"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_1fndb"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_y2oib"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_oiq6r"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_qmd44"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_mcrdo"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_sox1m"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_yrdn4"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
+
+[sub_resource type="Resource" id="Resource_aqce1"]
+script = ExtResource("2_2yqf0")
+grid_cells = null
 
 [sub_resource type="Resource" id="Resource_v1mye"]
 script = ExtResource("2_viwvj")
 width = 8
 height = 12
-pieces = Array[Resource("res://src/BloxPiece.gd")]([])
+pieces = Array[ExtResource("2_2yqf0")]([SubResource("Resource_0p6e2"), SubResource("Resource_gfgy6"), SubResource("Resource_c0ral"), SubResource("Resource_08qn8"), SubResource("Resource_xjlhb"), SubResource("Resource_7e7dc"), SubResource("Resource_8rpie"), SubResource("Resource_ixp43"), SubResource("Resource_ytshb"), SubResource("Resource_1fndb"), SubResource("Resource_y2oib"), SubResource("Resource_oiq6r"), SubResource("Resource_qmd44"), SubResource("Resource_mcrdo"), SubResource("Resource_sox1m"), SubResource("Resource_yrdn4"), SubResource("Resource_aqce1")])
+puyo_group_size = 4
 
 [node name="BloxBucket" type="Node2D"]
 script = ExtResource("1_sogpg")

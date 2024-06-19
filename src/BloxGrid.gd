@@ -95,7 +95,7 @@ func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
 	return false
 
 func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
-	var new_cells = piece.relative_coords(piece.root_coord + dir)
+	var new_cells = piece.relative_coords(dir)
 	var existing_cells = piece.grid_coords()
 	var conflicts = calc_conflicts(new_cells, existing_cells, "movement")
 	return conflicts.is_empty()
@@ -133,7 +133,7 @@ func rotate_piece(piece: BloxPiece, dir=Vector2i.RIGHT) -> bool:
 	return false
 
 func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
-	var new_cells = piece.rotated_grid_coords(dir)
+	var new_cells = piece.rotated_coords(dir)
 	var existing_cells = piece.grid_coords()
 
 	# bump/push away from edges/pieces to make the rotation fit
@@ -184,7 +184,7 @@ func remove_at_coord(coord: Vector2i) -> BloxCell:
 	if not piece:
 		Log.error("cannot remove at coord, no piece here!")
 		return
-	var cell = piece.remove_grid_coord(coord)
+	var cell = piece.remove_coord(coord)
 
 	if piece.is_empty():
 		pieces.erase(piece)
@@ -228,7 +228,7 @@ func clear_rows() -> Array:
 
 		if full_row:
 			var cells = []
-			# remove from each pieces' local_cells
+			# remove from each piece's cells
 			for crd in row_crds:
 				var cell = remove_at_coord(crd)
 				cells.append(cell)
@@ -239,10 +239,10 @@ func clear_rows() -> Array:
 ## puyo split ################################################
 
 func split_piece_coord(piece: BloxPiece, grid_coord: Vector2i) -> void:
-	var cell = piece.remove_grid_coord(grid_coord)
+	var cell = piece.remove_coord(grid_coord)
 	var new_p = BloxPiece.new({
 		coord=grid_coord,
-		cells=[Vector2()],
+		cells=[Vector2i()],
 		color=cell.color,
 		})
 	add_piece(new_p)
