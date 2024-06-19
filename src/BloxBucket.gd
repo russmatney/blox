@@ -22,6 +22,20 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
+	grid.on_update.connect(func(state):
+		Log.pr("grid update", state)
+		render())
+
+	grid.on_cells_cleared.connect(func(cells):
+		# TODO sound
+		# TODO animation
+		Log.pr("cells cleared", cells))
+
+	grid.on_rows_cleared.connect(func(rows):
+		# TODO sound
+		# TODO animation
+		Log.pr("rows cleared", rows))
+
 	render()
 	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 	start_next_piece()
@@ -72,54 +86,22 @@ func start_next_piece():
 
 func queue_pieces(count=7):
 	# TODO proper tetris shuffle
-	# TODO consider cell color randomness
-	# probably pull pieces/colors from lists in the game-mode/settings
+	# TODO cell color distribution
+	# TODO pull pieces/colors from options/game-mode/unlocks/etc
 	for i in range(count):
 		var p = BloxPiece.random()
 		piece_queue.append(p)
 
 ## tick ################################################
 
-# TODO flags for game logic
-# - compose from current jokers/fathers/characters
-# TODO move the logic into grid and expose some opts/config/signals
 func tick():
 	if tick_every > 0.0:
 		await get_tree().create_timer(tick_every).timeout
 
-	var did_step = grid.apply_step_tetris()
-
-	# puyo split - if any splits, need to apply_step_tetris after splitting so other cells fall
-	var did_split = false
-	if not did_step:
-		did_split = grid.apply_split_puyo()
-
-	if did_step or did_split:
-		render()
+	if grid.step({direction=Vector2i.DOWN}):
 		tick()
-		return # wait to clear until we're all settled
+		return
 
-	var did_clear = false
-
-	# puyo clear
-	var groups = grid.clear_groups()
-	if not groups.is_empty():
-		did_clear = true
-		Log.pr("cells cleared", groups)
-		# TODO group-clear animation/sound
-
-	# tetris clear
-	var ct = grid.clear_rows()
-	if ct > 0:
-		did_clear = true
-		# TODO row-clear animation/sound
-
-	if did_clear:
-		render()
-		tick()
-		return # wait to queue/next-piece until we're all settled
-
-	render()
 	# i.e. ready for next piece
 	board_settled.emit()
 

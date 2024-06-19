@@ -140,8 +140,10 @@ func test_tetris_clear_rows():
 	assert_int(len(crds)).is_equal(3)
 	assert_array(crds).contains([Vector2i(0, 1), Vector2i(1, 1), Vector2i(1, 0)])
 
-	var cleared_count = grid.clear_rows()
-	assert_int(cleared_count).is_equal(1)
+	var rows = grid.clear_rows()
+	assert_int(len(rows)).is_equal(1)
+	assert_int(len(rows[0])).is_equal(2)
+	# TODO test row cells returned - cells are local to piece, have no root_coord! blast!
 
 	crds = grid.piece_coords()
 	assert_int(len(grid.pieces)).is_equal(1)
@@ -266,7 +268,7 @@ func test_puyo_group_clear_square():
 	var ret = grid.clear_groups()
 
 	# should remove 4 cells
-	assert_array(ret).contains([4])
+	assert_array(ret.map(func(xs): return len(xs))).contains([4])
 
 	crds = grid.piece_coords()
 	assert_int(len(grid.pieces)).is_equal(0)
@@ -304,8 +306,62 @@ func test_puyo_group_clear_t():
 	var ret = grid.clear_groups()
 
 	# should remove 4 cells
-	assert_array(ret).contains([4])
+	assert_array(ret.map(func(xs): return len(xs))).contains([4])
 
 	crds = grid.piece_coords()
 	assert_int(len(grid.pieces)).is_equal(0)
 	assert_int(len(crds)).is_equal(0)
+
+## step/tick ############################################
+
+func test_step_settles_board():
+	var grid = BloxGrid.new({width=2, height=3})
+	var p = BloxPiece.new({cells=[Vector2i()], coord=Vector2i(1, 0)})
+	var ret = grid.add_piece(p)
+	assert_bool(ret).is_true()
+
+	while grid.step(): # run until false
+		pass
+
+	var crds = grid.piece_coords()
+	assert_int(len(crds)).is_equal(1)
+	assert_array(crds).contains([Vector2i(1, 2)])
+
+## bugs ############################################
+
+func test_tick_clears_piece_t():
+	var grid = BloxGrid.new({width=4, height=5})
+	var ret = grid.add_piece(
+		BloxPiece.new({cells=[
+			Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0),
+							Vector2i(1, 1),
+			],
+			coord=Vector2i(1, 0), color=Color.RED,
+		}))
+	assert_bool(ret).is_true()
+
+	while grid.step():
+		pass
+
+	var crds = grid.piece_coords()
+	assert_int(len(crds)).is_equal(0)
+	assert_array(crds).is_empty()
+
+func test_tick_clears_piece_s():
+	var grid = BloxGrid.new({width=4, height=5})
+	var ret = grid.add_piece(
+		BloxPiece.new({cells=[
+			Vector2i(0, 0),
+			Vector2i(0, 1), Vector2i(1, 1),
+							Vector2i(1, 2),
+			],
+			coord=Vector2i(0, 0), color=Color.RED,
+		}))
+	assert_bool(ret).is_true()
+
+	while grid.step():
+		pass
+
+	var crds = grid.piece_coords()
+	assert_int(len(crds)).is_equal(0)
+	assert_array(crds).is_empty()

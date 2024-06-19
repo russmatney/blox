@@ -178,16 +178,17 @@ func can_piece_rotate(piece: BloxPiece, dir=Vector2i.RIGHT) -> Array:
 
 # removes a cell from a piece at the passed grid_coord.
 # if the result is an empty piece, it is removed from the state pieces.
-func remove_at_coord(coord: Vector2i):
+func remove_at_coord(coord: Vector2i) -> BloxCell:
 	var crd_to_piece = coords_to_piece_dict()
 	var piece = crd_to_piece.get(coord)
 	if not piece:
-		Log.warn("cannot remove at coord, no piece here!")
+		Log.error("cannot remove at coord, no piece here!")
 		return
-	piece.remove_grid_coord(coord)
+	var cell = piece.remove_grid_coord(coord)
 
 	if piece.is_empty():
 		pieces.erase(piece)
+	return cell
 
 ## tetris fall ################################################
 
@@ -212,11 +213,9 @@ func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 ## tetris clear ################################################
 
 # returns the number of rows that were cleared
-func clear_rows() -> int:
+func clear_rows() -> Array:
 	var piece_dict = piece_coords_as_dict()
-	# collect coords to clear
-	var crds_to_clear = []
-	var rows_cleared = 0
+	var rows_cleared = []
 	for y in range(height):
 		var full_row = true
 		var row_crds = []
@@ -228,12 +227,12 @@ func clear_rows() -> int:
 				full_row = false
 
 		if full_row:
-			rows_cleared += 1
-			crds_to_clear.append_array(row_crds)
-
-	# remove from each pieces' local_cells
-	for crd in crds_to_clear:
-		remove_at_coord(crd)
+			var cells = []
+			# remove from each pieces' local_cells
+			for crd in row_crds:
+				var cell = remove_at_coord(crd)
+				cells.append(cell)
+			rows_cleared.append(cells)
 
 	return rows_cleared
 
@@ -290,12 +289,14 @@ func clear_groups() -> Array:
 		if not piece in pieces:
 			continue # piece already removed (likely by remove_at_coord), skip it
 		var color = piece.get_coord_color(crd)
-		var group = get_common_neighbors(crd, crd_to_piece,
+		var group_coords = get_common_neighbors(crd, crd_to_piece,
 			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
-		if len(group) >= puyo_group_size:
-			groups_cleared.append(len(group))
-			for c in group:
-				remove_at_coord(c)
+		if len(group_coords) >= puyo_group_size:
+			var group_cells = []
+			for c in group_coords:
+				var cell = remove_at_coord(c)
+				group_cells.append(cell)
+			groups_cleared.append(group_cells)
 
 	return groups_cleared
 
@@ -338,3 +339,59 @@ func neighbor_coords(coord: Vector2i):
 		coord + Vector2i.LEFT,
 		coord + Vector2i.RIGHT,
 		]
+
+## step/tick ################################################
+
+const STATE_SETTLED="state_settled"
+const STATE_FALLING="state_falling"
+const STATE_SPLITTING="state_splitting"
+const STATE_CLEARING="state_clearing"
+
+signal on_update(state)
+signal on_cells_cleared(cells)
+signal on_rows_cleared(rows)
+
+# TODO flags for game logic
+# - compose from current jokers/fathers/characters?
+# - pass in via options, but probably some stored resource/game-mode data
+
+# Steps the grid through the game logic
+# returns true if anything changed
+# (in which case this should likely be called again soon)
+func step(opts={}) -> bool:
+	var direction = opts.get("direction", Vector2i.DOWN)
+
+	# move everything that can one step, if possible
+	if apply_step_tetris(direction):
+		on_update.emit(STATE_FALLING)
+		return true
+
+	# puyo piece split
+	if apply_split_puyo(direction):
+		on_update.emit(STATE_SPLITTING)
+		return true
+
+	# clear groups AND rows together
+	var did_clear = false
+
+	# puyo same-color group clear
+	var groups = clear_groups()
+	if not groups.is_empty():
+		Log.info("cells cleared", groups.map(func(xs): return len(xs)))
+		did_clear = true
+		on_cells_cleared.emit(groups)
+
+	# tetris row clear
+	var rows = clear_rows()
+	if not rows.is_empty():
+		Log.info("rows cleared", len(rows))
+		did_clear = true
+		on_rows_cleared.emit(rows)
+
+	if did_clear:
+		on_update.emit(STATE_CLEARING)
+		return true
+
+	# all settled, ready for next piece
+	on_update.emit(STATE_SETTLED)
+	return false
