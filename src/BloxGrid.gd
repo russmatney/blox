@@ -367,7 +367,7 @@ func step(opts={}) -> bool:
 		return true
 
 	# puyo piece split
-	if apply_split_puyo(direction):
+	if opts.get("puyo_split", false) and apply_split_puyo(direction):
 		on_update.emit(STATE_SPLITTING)
 		return true
 
@@ -375,18 +375,20 @@ func step(opts={}) -> bool:
 	var did_clear = false
 
 	# puyo same-color group clear
-	var groups = clear_groups()
-	if not groups.is_empty():
-		Log.info("cells cleared", groups.map(func(xs): return len(xs)))
-		did_clear = true
-		on_cells_cleared.emit(groups)
+	if opts.get("puyo_groups", false):
+		var groups = clear_groups()
+		if not groups.is_empty():
+			Log.info("cells cleared", groups.map(func(xs): return len(xs)))
+			did_clear = true
+			on_cells_cleared.emit(groups)
 
 	# tetris row clear
-	var rows = clear_rows()
-	if not rows.is_empty():
-		Log.info("rows cleared", len(rows))
-		did_clear = true
-		on_rows_cleared.emit(rows)
+	if opts.get("tetris_rows", false):
+		var rows = clear_rows()
+		if not rows.is_empty():
+			Log.info("rows cleared", len(rows))
+			did_clear = true
+			on_rows_cleared.emit(rows)
 
 	if did_clear:
 		on_update.emit(STATE_CLEARING)

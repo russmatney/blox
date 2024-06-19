@@ -98,7 +98,12 @@ func tick():
 	if tick_every > 0.0:
 		await get_tree().create_timer(tick_every).timeout
 
-	if grid.step({direction=Vector2i.DOWN}):
+	if grid.step({
+			direction=Vector2i.DOWN,
+			puyo_split=true,
+			tetris_row_clear=true,
+			puyo_group_clear=true,
+			}):
 		tick()
 		return
 
