@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://dyh165k6fs4jf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rwolb"]
+bg_color = Color(0.0364248, 0.263517, 0.310359, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vipxn"]
+
+[resource]
+PanelContainer/styles/panel = SubResource("StyleBoxFlat_rwolb")
+PanelContainerNoBackground/base_type = &"PanelContainer"
+PanelContainerNoBackground/styles/panel = SubResource("StyleBoxEmpty_vipxn")

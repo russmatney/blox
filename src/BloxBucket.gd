@@ -24,6 +24,8 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
+	render_grid_cell_bg()
+
 	if Engine.is_editor_hint():
 		return
 
@@ -32,7 +34,6 @@ func _ready():
 	grid.on_rows_cleared.connect(on_rows_cleared)
 	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 
-	render_grid_cell_bg()
 	render()
 	start_next_piece()
 
@@ -40,6 +41,7 @@ func _ready():
 
 func bucket_rect() -> Rect2:
 	var r = Rect2()
+	r.position = position
 	r.size = Vector2(grid.width, grid.height) * cell_size
 	return r
 
@@ -105,7 +107,6 @@ func on_rows_cleared(rows: Array):
 func on_grid_update(state):
 	# clear current_piece when it lands on something
 	# this will prevent 'controlling' the parts after splits
-	Log.pr("grid update", state)
 	match (state):
 		BloxGrid.STATE_SETTLED:
 			current_piece = null # when settled, no current piece
@@ -217,7 +218,6 @@ func render_grid_cell_bg():
 func render():
 	if not is_inside_tree():
 		return
-	Log.info("rendering")
 
 	render_pieces()
 

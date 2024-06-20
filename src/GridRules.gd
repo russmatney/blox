@@ -11,6 +11,15 @@ class_name GridRules
 
 # maybe colors/shapes?
 
+func to_pretty():
+	return {
+		step_direction=step_direction,
+		puyo_split=puyo_split,
+		puyo_group_clear=puyo_group_clear,
+		puyo_group_size=puyo_group_size,
+		tetris_row_clear=tetris_row_clear,
+		}
+
 ## validate ##########################################
 
 func validate_opts(opts: Dictionary):

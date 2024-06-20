@@ -35,6 +35,10 @@ folder_colors={
 "res://test/": "gray"
 }
 
+[gui]
+
+theme/custom="res://src/BloxTheme.tres"
+
 [input]
 
 ui_left={
