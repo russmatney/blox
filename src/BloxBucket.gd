@@ -8,7 +8,6 @@ class_name BloxBucket
 @export var cell_size = Vector2.ONE * 32
 
 const BUCKET_CELL_GROUP="bucket_cells"
-const PIECE_CELL_GROUP="piece_cells"
 
 var piece_queue: Array[BloxPiece] = []
 var current_piece
@@ -36,6 +35,17 @@ func _ready():
 	render_grid_cell_bg()
 	render()
 	start_next_piece()
+
+## dimensions ################################################
+
+func bucket_rect() -> Rect2:
+	var r = Rect2()
+	r.size = Vector2(grid.width, grid.height) * cell_size
+	return r
+
+func bucket_center() -> Vector2:
+	var r = bucket_rect()
+	return r.get_center()
 
 ## on cells cleared ################################################
 
@@ -241,4 +251,3 @@ func render_pieces():
 			tween.parallel().tween_property(cr, "size", new_size, tick_every)
 
 			cr.name = "PieceCell-%s-%s" % [coord.x, coord.y]
-			cr.add_to_group(PIECE_CELL_GROUP)

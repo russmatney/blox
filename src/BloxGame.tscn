@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://bkbmd5nbt1fco"]
+
+[ext_resource type="PackedScene" uid="uid://dwj7dbdpb053r" path="res://src/BloxBucket.tscn" id="1_hv3gi"]
+[ext_resource type="Script" path="res://src/BloxGame.gd" id="1_t4cqx"]
+
+[node name="BloxGame" type="Node2D"]
+script = ExtResource("1_t4cqx")
+
+[node name="BloxBucket" parent="." instance=ExtResource("1_hv3gi")]
+
+[node name="Camera2D" type="Camera2D" parent="."]

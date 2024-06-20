@@ -7,8 +7,6 @@
 script = ExtResource("2_viwvj")
 width = 8
 height = 12
-pieces = Array[Resource("res://src/BloxPiece.gd")]([])
-puyo_group_size = 4
 
 [node name="BloxBucket" type="Node2D"]
 script = ExtResource("1_sogpg")
