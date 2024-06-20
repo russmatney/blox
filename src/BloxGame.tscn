@@ -3,11 +3,25 @@
 [ext_resource type="PackedScene" uid="uid://dwj7dbdpb053r" path="res://src/BloxBucket.tscn" id="1_hv3gi"]
 [ext_resource type="Script" path="res://src/BloxGame.gd" id="1_t4cqx"]
 
-[node name="BloxGame" type="Node2D"]
+[node name="BloxGame" type="Node"]
 script = ExtResource("1_t4cqx")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -721.0
+offset_top = -511.0
+offset_right = 1009.0
+offset_bottom = 607.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.00151539, 0.187871, 0.249572, 1)
+metadata/_edit_lock_ = true
 
 [node name="BloxBucket" parent="." instance=ExtResource("1_hv3gi")]
 z_index = 1
+position = Vector2(448, 141)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -22,25 +36,25 @@ theme_type_variation = &"PanelContainerNoBackground"
 [node name="HBoxContainer" type="HBoxContainer" parent="UI/HUD"]
 layout_mode = 2
 
-[node name="LeftSide" type="VBoxContainer" parent="UI/HUD/HBoxContainer"]
+[node name="LeftSide" type="PanelContainer" parent="UI/HUD/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="PanelContainer" type="PanelContainer" parent="UI/HUD/HBoxContainer/LeftSide"]
-layout_mode = 2
 size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/LeftSide"]
+layout_mode = 2
 
 [node name="BucketMarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(384, 2.08165e-12)
 layout_mode = 2
 
-[node name="RightSide" type="VBoxContainer" parent="UI/HUD/HBoxContainer"]
+[node name="RightSide" type="PanelContainer" parent="UI/HUD/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="PanelContainer" type="PanelContainer" parent="UI/HUD/HBoxContainer/RightSide"]
-layout_mode = 2
 size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/RightSide"]
+layout_mode = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
