@@ -21,6 +21,9 @@ func _init(opts={}):
 func entry_coord() -> Vector2i:
 	return Vector2i(floor(width/2.0) - 1, 0)
 
+func clear():
+	pieces = []
+
 ## add_piece ################################################
 
 func can_add_piece(p: BloxPiece) -> bool:
@@ -346,7 +349,7 @@ const STATE_SPLITTING="state_splitting"
 const STATE_CLEARING="state_clearing"
 
 signal on_update(state)
-signal on_cells_cleared(cells)
+signal on_groups_cleared(groups)
 signal on_rows_cleared(rows)
 
 # Steps the grid through the game logic
@@ -374,7 +377,7 @@ func step(opts={}) -> bool:
 		if not groups.is_empty():
 			Log.info("cells cleared", groups.map(func(xs): return len(xs)))
 			did_clear = true
-			on_cells_cleared.emit(groups)
+			on_groups_cleared.emit(groups)
 
 	# tetris row clear
 	if rules.tetris_row_clear:

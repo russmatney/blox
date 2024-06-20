@@ -44,6 +44,26 @@ size_flags_vertical = 3
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/LeftSide"]
 layout_mode = 2
 
+[node name="MarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer"]
+custom_minimum_size = Vector2(2.08165e-12, 64)
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer"]
+layout_mode = 2
+
+[node name="ScoreLabel" type="RichTextLabel" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 2.08165e-12)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]Cells: 999[/center]"
+fit_content = true
+scroll_active = false
+
 [node name="BucketMarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(384, 2.08165e-12)
@@ -55,6 +75,41 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/RightSide"]
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer"]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(100, 2.08165e-12)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]Next[/center]"
+fit_content = true
+scroll_active = false
+
+[node name="PieceQueueGridContainer" type="GridContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CenterContainer2" type="CenterContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer2"]
+layout_mode = 2
+
+[node name="RestartButton" type="Button" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Restart"
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer"]
+custom_minimum_size = Vector2(2.08165e-12, 64)
 layout_mode = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]

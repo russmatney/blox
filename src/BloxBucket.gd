@@ -8,13 +8,13 @@ class_name BloxBucket
 @export var cell_size = Vector2.ONE * 32
 
 const BUCKET_CELL_GROUP="bucket_cells"
+const PIECE_CELL_GROUP="piece_cells"
 
 var piece_queue: Array[BloxPiece] = []
 var current_piece
 var tick_every = 0.4
 
 var cell_id_to_rect = {}
-
 
 signal board_settled
 
@@ -30,10 +30,20 @@ func _ready():
 		return
 
 	grid.on_update.connect(on_grid_update)
-	grid.on_cells_cleared.connect(on_cells_cleared)
+	grid.on_groups_cleared.connect(on_groups_cleared)
 	grid.on_rows_cleared.connect(on_rows_cleared)
 	board_settled.connect(start_next_piece, CONNECT_DEFERRED)
 
+	render()
+	start_next_piece()
+
+## reset ################################################
+
+func restart():
+	clear_pieces()
+	piece_queue = []
+	reset_color_rect_map()
+	grid.clear()
 	render()
 	start_next_piece()
 
@@ -49,29 +59,15 @@ func bucket_center() -> Vector2:
 	var r = bucket_rect()
 	return r.get_center()
 
-## on cells cleared ################################################
+## cell to rects ################################################
 
-func on_cells_cleared(cell_groups: Array):
-	Log.pr("cells cleared", cell_groups)
-	var t = 1.5
-	for cells in cell_groups:
-		anim_cell_group_clear(cells, t)
-	# await get_tree().create_timer(t).timeout
-	# TODO sound
-	# TODO animation
-	# TODO score?
+func reset_color_rect_map():
+	cell_id_to_rect = {}
 
-func anim_cell_group_clear(cells, t=0.5):
-	var tween = create_tween()
-	for color_rect in get_color_rects(cells):
-		Log.pr("tweening color rect", color_rect)
-		tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
-
-	for color_rect in get_color_rects(cells):
-		tween.tween_callback(func():
-			color_rect.queue_free()
-			# TODO clear cell_id_to_rect dict!
-			)
+func clear_color_rects(cells):
+	for c in cells:
+		# when do the cells get freed?
+		cell_id_to_rect.erase(c.get_instance_id())
 
 func get_color_rects(cells) -> Array[ColorRect]:
 	var rects: Array[ColorRect] = []
@@ -83,11 +79,34 @@ func get_color_rects(cells) -> Array[ColorRect]:
 			rects.append(rect)
 	return rects
 
+## on cells cleared ################################################
+
+func on_groups_cleared(groups: Array):
+	Log.pr("group cleared", groups)
+	var t = 1.5
+	for cells in groups:
+		anim_cell_group_clear(cells, t)
+
+func anim_cell_group_clear(cells, t=0.5):
+	var tween = create_tween()
+	var rects = []
+	for color_rect in get_color_rects(cells):
+		Log.pr("tweening color rect", color_rect)
+		tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
+		rects.append(color_rect)
+
+	clear_color_rects(cells)
+
+	for color_rect in rects:
+		tween.tween_callback(func():
+			color_rect.queue_free()
+			resume_ticking()
+			)
+
 ## on rows cleared ################################################
 
 func on_rows_cleared(rows: Array):
 	Log.pr("rows cleared", rows)
-	# TODO animate the rows grouping and leaving
 	var tween = create_tween()
 	var t = 0.5
 	var rects = []
@@ -95,29 +114,40 @@ func on_rows_cleared(rows: Array):
 		for color_rect in get_color_rects(cells):
 			rects.append(color_rect)
 			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
+		clear_color_rects(cells)
 
 	for color_rect in rects:
 		tween.tween_callback(func():
 			color_rect.queue_free()
-			# TODO clear cell_id_to_rect dict!
+			resume_ticking()
 			)
 
+
 ## on grid update ################################################
+
+var grid_state
 
 func on_grid_update(state):
 	# clear current_piece when it lands on something
 	# this will prevent 'controlling' the parts after splits
+	Log.pr("grid update", state)
+	grid_state = state
 	match (state):
 		BloxGrid.STATE_SETTLED:
 			current_piece = null # when settled, no current piece
 			render()
+			resume_ticking()
 		BloxGrid.STATE_SPLITTING:
 			current_piece = null # on first split, prevent more movement control
 			render()
+			pause_ticking()
+			tick()
 		BloxGrid.STATE_CLEARING:
 			current_piece = null # if clearing, no current piece
 			render()
+			pause_ticking()
 		BloxGrid.STATE_FALLING:
+			resume_ticking()
 			if current_piece:
 				render()
 
@@ -170,26 +200,45 @@ func queue_pieces(count=7):
 		var p = BloxPiece.random()
 		piece_queue.append(p)
 
+## process ################################################
+
+# grid_state in [
+# 	BloxGrid.STATE_FALLING,
+# 	BloxGrid.STATE_SPLITTING,
+# 	BloxGrid.STATE_CLEARING,
+# 	]
+
+var next_tick_in = 0
+var ticking = true
+
+func pause_ticking():
+	ticking = false
+	next_tick_in = 0
+
+func resume_ticking():
+	ticking = true
+
+func _process(delta):
+	next_tick_in -= delta
+
+	# consider checking board state
+	if (ticking and next_tick_in <= 0):
+		tick()
+		next_tick_in = tick_every
+
 ## tick ################################################
 
 func tick():
-	if current_piece and tick_every > 0.0:
-		await get_tree().create_timer(tick_every).timeout
+	var any_change = grid.step({
+		step_direction=Vector2i.DOWN,
+		puyo_split=true,
+		tetris_row_clear=true,
+		puyo_group_clear=true,
+		})
 
-	# TODO how to wait until the animations are done?
-	# if grid.state -> something, await some signal?
-
-	if grid.step({
-			step_direction=Vector2i.DOWN,
-			puyo_split=true,
-			tetris_row_clear=true,
-			puyo_group_clear=true,
-			}):
-		tick()
-		return
-
-	# i.e. ready for next piece
-	board_settled.emit()
+	if not any_change:
+		# i.e. ready for next piece
+		board_settled.emit()
 
 ## render ################################################
 
@@ -221,6 +270,11 @@ func render():
 
 	render_pieces()
 
+func clear_pieces():
+	for ch in get_children():
+		if ch.is_in_group(PIECE_CELL_GROUP):
+			ch.free()
+
 func render_pieces():
 	var size_factor = 0.8
 	for piece in grid.pieces:
@@ -230,6 +284,7 @@ func render_pieces():
 			var cr = cell_id_to_rect.get(cell.get_instance_id())
 			if not cr:
 				cr = ColorRect.new()
+				cr.add_to_group(PIECE_CELL_GROUP, true)
 				cell_id_to_rect[cell.get_instance_id()] = cr
 
 				if cell.color:
