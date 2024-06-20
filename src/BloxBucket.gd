@@ -93,8 +93,8 @@ func on_rows_cleared(rows: Array):
 ## on grid update ################################################
 
 func on_grid_update(state):
-	# TODO clear current_piece when it lands on something
-	# this will prevent controling the parts after the split
+	# clear current_piece when it lands on something
+	# this will prevent 'controlling' the parts after splits
 	Log.pr("grid update", state)
 	match (state):
 		BloxGrid.STATE_SETTLED:
@@ -102,10 +102,10 @@ func on_grid_update(state):
 			render()
 		BloxGrid.STATE_SPLITTING:
 			current_piece = null # on first split, prevent more movement control
-			# render()
+			render()
 		BloxGrid.STATE_CLEARING:
 			current_piece = null # if clearing, no current piece
-			# render()
+			render()
 		BloxGrid.STATE_FALLING:
 			if current_piece:
 				render()
@@ -230,8 +230,15 @@ func render_pieces():
 				add_child.call_deferred(cr)
 
 			var cell_size_adj = cell_size * (1 - size_factor)
-			# TODO tween movement?
-			cr.position = Vector2(coord) * cell_size + (cell_size_adj/2.0)
-			cr.size = cell_size - cell_size_adj
+			var new_pos = Vector2(coord) * cell_size + (cell_size_adj/2.0)
+			var new_size = cell_size - cell_size_adj
+
+			# tween movement
+			if cr.position == Vector2():
+				cr.position = new_pos + Vector2.UP * cell_size * 3
+			var tween = create_tween()
+			tween.tween_property(cr, "position", new_pos, tick_every)
+			tween.parallel().tween_property(cr, "size", new_size, tick_every)
+
 			cr.name = "PieceCell-%s-%s" % [coord.x, coord.y]
 			cr.add_to_group(PIECE_CELL_GROUP)
