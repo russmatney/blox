@@ -294,7 +294,6 @@ func test_puyo_group_clear_square():
 	var grid = BloxGrid.new({
 		width=2, height=2,
 		})
-	grid.puyo_group_size = 4
 	var p = BloxPiece.new({cells=[
 		Vector2i(), Vector2i(1, 0),
 		Vector2i(0, 1), Vector2i(1, 1),
@@ -325,7 +324,6 @@ func test_puyo_group_clear_t():
 	var grid = BloxGrid.new({
 		width=3, height=3,
 		})
-	grid.puyo_group_size = 4
 	var color = Color.RED
 	grid.add_piece(
 		BloxPiece.new({cells=[
@@ -364,6 +362,7 @@ func test_puyo_group_clear_t():
 var step_opts = {
 	puyo_split=true,
 	puyo_group_clear=true,
+	puyo_group_size=4,
 	tetris_row_clear=true,
 	}
 

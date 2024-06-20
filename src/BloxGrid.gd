@@ -4,12 +4,10 @@ class_name BloxGrid
 
 ## vars ################################################
 
-@export var width: int = 6
-@export var height: int = 10
+@export var width: int = 8
+@export var height: int = 12
 
-@export var pieces: Array[BloxPiece] = []
-
-@export var puyo_group_size: int = 4
+var pieces: Array[BloxPiece] = []
 
 func to_pretty():
 	return {width=width, height=height, pieces=pieces}
@@ -278,7 +276,9 @@ func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 
 # clear all same-color-4-touching coords
 # return a list of the cleared groups, including how many blocks were cleared
-func clear_groups() -> Array:
+func clear_groups(rules=null) -> Array:
+	if not rules:
+		rules = GridRules.new()
 	var groups_cleared = []
 	var crd_to_piece = coords_to_piece_dict()
 	for crd in crd_to_piece.keys():
@@ -288,7 +288,7 @@ func clear_groups() -> Array:
 		var color = piece.get_coord_color(crd)
 		var group_coords = get_common_neighbors(crd, crd_to_piece,
 			func(nbr_coord, nbr_piece): return nbr_piece.get_coord_color(nbr_coord) == color)
-		if len(group_coords) >= puyo_group_size:
+		if len(group_coords) >= rules.puyo_group_size:
 			var group_cells = []
 			for c in group_coords:
 				var cell = remove_at_coord(c)
@@ -370,7 +370,7 @@ func step(opts={}) -> bool:
 
 	# puyo same-color group clear
 	if rules.puyo_group_clear:
-		var groups = clear_groups()
+		var groups = clear_groups(rules)
 		if not groups.is_empty():
 			Log.info("cells cleared", groups.map(func(xs): return len(xs)))
 			did_clear = true
