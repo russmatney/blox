@@ -21,9 +21,13 @@ InputHelper="*res://addons/input_helper/input_helper.gd"
 Pandora="*res://addons/pandora/api.gd"
 SoundManager="*res://addons/sound_manager/sound_manager.gd"
 
+[display]
+
+window/size/resizable=false
+
 [editor]
 
-movie_writer/movie_file="clips/blox_latest.mp4"
+movie_writer/movie_file="/home/russ/russmatney/blox/clips/blox_latest.avi"
 
 [editor_plugins]
 
