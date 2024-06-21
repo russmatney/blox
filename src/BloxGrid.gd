@@ -297,7 +297,8 @@ func clear_groups(rules=null) -> Array:
 				var cell = remove_at_coord(c)
 				if cell:
 					group_cells.append(cell)
-			groups_cleared.append(group_cells)
+			if not group_cells.is_empty():
+				groups_cleared.append(group_cells)
 
 	return groups_cleared
 

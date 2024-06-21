@@ -21,6 +21,10 @@ InputHelper="*res://addons/input_helper/input_helper.gd"
 Pandora="*res://addons/pandora/api.gd"
 SoundManager="*res://addons/sound_manager/sound_manager.gd"
 
+[editor]
+
+movie_writer/movie_file="clips/blox_latest.mp4"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg", "res://addons/blox/plugin.cfg", "res://addons/gdUnit4/plugin.cfg", "res://addons/gdfxr/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/log/plugin.cfg", "res://addons/pandora/plugin.cfg", "res://addons/sound_manager/plugin.cfg")

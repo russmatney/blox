@@ -29,6 +29,14 @@ var auto_ticking = true
 var stuck = false
 var action_queue = []
 
+signal user_move_complete
+signal fall_complete
+signal clear_complete
+signal split_complete
+
+var grid_state
+
+
 func to_pretty():
 	return {grid=grid}
 
@@ -49,10 +57,10 @@ func _ready():
 	grid.on_rows_cleared.connect(func(rows):
 		action_queue.append(on_rows_cleared.bind(rows)))
 
-	user_move_complete.connect(on_user_move_complete)
-	fall_complete.connect(on_fall_complete)
-	clear_complete.connect(on_clear_complete)
-	split_complete.connect(on_split_complete)
+	user_move_complete.connect(do_next_action)
+	fall_complete.connect(do_next_action)
+	clear_complete.connect(do_next_action)
+	split_complete.connect(do_next_action)
 
 	start_next_piece()
 	resume_auto_ticking()
@@ -63,20 +71,29 @@ func _ready():
 func _input(event):
 	# TODO holding to apply multiple times doesn't work rn!!
 	if current_piece:
+
 		var did_move
-		var did_rotate
 		if Trolls.is_move_right(event):
 			did_move = grid.move_piece(current_piece, Vector2i.RIGHT)
 		if Trolls.is_move_left(event):
 			did_move = grid.move_piece(current_piece, Vector2i.LEFT)
-
+		if Trolls.is_move_down(event):
+			did_move = grid.move_piece(current_piece, Vector2i.DOWN)
 		if Trolls.is_move_up(event):
-			did_rotate = grid.rotate_piece(current_piece, Vector2i.RIGHT)
-
+			did_move = grid.move_piece(current_piece, Vector2i.UP)
 		if did_move:
 			user_moved_piece({time=0.2})
-		elif did_rotate:
-			user_moved_piece({time=0.9})
+			return
+
+		var did_rotate
+		if Trolls.is_accept(event):
+			did_rotate = grid.rotate_piece(current_piece, Vector2i.RIGHT)
+		elif Trolls.is_undo(event):
+			did_rotate = grid.rotate_piece(current_piece, Vector2i.LEFT)
+		if did_rotate:
+			user_moved_piece({time=0.2})
+
+
 		else:
 			pass
 			# TODO sound effect for move/hitwall/rotate
@@ -105,11 +122,14 @@ func maybe_tick():
 		tick()
 
 func tick():
+	# step the grid forward
 	var any_change = grid.step(rule_inputs)
 
 	if any_change:
+		# this eventually fires 'do_next_action' (after any animation)
 		update_piece_positions()
 	else:
+		# no change! attempt action, start new piece, or tick again until we're ready
 		do_next_action()
 
 func pause_auto_ticking():
@@ -130,54 +150,17 @@ func do_next_action():
 	var ax = action_queue.pop_front()
 	ax.call()
 
-
-signal user_move_complete
-signal fall_complete
-signal clear_complete
-signal split_complete
-
-func on_user_move_complete():
-	Log.pr("user move complete")
-	do_next_action()
-
-func on_fall_complete():
-	Log.pr("fall complete")
-	do_next_action()
-
-func on_clear_complete():
-	Log.pr("clear complete")
-	do_next_action()
-
-func on_split_complete():
-	Log.pr("split complete")
-	do_next_action()
-
-var grid_state
-
 func on_grid_update(state):
-	Log.pr("grid update", state)
 	grid_state = state
 
-	# pause ticking completely until we decide what to do
+	# pause ticking completely (other signals will eventually resume it)
 	pause_auto_ticking()
 
 	match (state):
-		# grid (data) is settled - but we need to wait for outstanding actions
-		BloxGrid.STATE_SETTLING:
-			# if NO outstanding actions, start next piece?
-			pass
-
-		# just split off a new piece
-		BloxGrid.STATE_SPLITTING:
+		BloxGrid.STATE_SPLITTING, BloxGrid.STATE_CLEARING:
+			# clear to prevent any user action
 			current_piece = null
-
-		# just cleared a row or group
-		BloxGrid.STATE_CLEARING:
-			current_piece = null
-
-		# something just fell one unit
-		BloxGrid.STATE_FALLING:
-			pass
+		_: pass
 
 ## reset ################################################
 
