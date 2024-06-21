@@ -36,6 +36,8 @@ func validate_opts(opts: Dictionary):
 ## init ##########################################
 
 func _init(opts={}):
+	if not opts:
+		opts = {}
 	validate_opts(opts)
 	step_direction = opts.get("step_direction", step_direction)
 	puyo_split = opts.get("puyo_split", puyo_split)

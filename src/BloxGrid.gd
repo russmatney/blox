@@ -343,12 +343,13 @@ func neighbor_coords(coord: Vector2i):
 
 ## step/tick ################################################
 
-const STATE_SETTLED="state_settled"
+const STATE_SETTLING="state_settled"
 const STATE_FALLING="state_falling"
 const STATE_SPLITTING="state_splitting"
 const STATE_CLEARING="state_clearing"
 
 signal on_update(state)
+signal on_pieces_split()
 signal on_groups_cleared(groups)
 signal on_rows_cleared(rows)
 
@@ -356,6 +357,8 @@ signal on_rows_cleared(rows)
 # returns true if anything changed
 # (in which case this should likely be called again soon)
 func step(opts={}) -> bool:
+	# TODO refactor: separate _what_ to do from _doing_ it
+
 	var rules = GridRules.new(opts)
 
 	# move everything that can one step, if possible
@@ -364,7 +367,10 @@ func step(opts={}) -> bool:
 		return true
 
 	# puyo piece split
+	# TODO split more cells here, not just those immediately above a gap
 	if rules.puyo_split and apply_split_puyo(rules.step_direction):
+		# TODO include pieces
+		on_pieces_split.emit()
 		on_update.emit(STATE_SPLITTING)
 		return true
 
@@ -392,5 +398,5 @@ func step(opts={}) -> bool:
 		return true
 
 	# all settled, ready for next piece
-	on_update.emit(STATE_SETTLED)
+	on_update.emit(STATE_SETTLING)
 	return false
