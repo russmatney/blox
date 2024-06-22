@@ -1,4 +1,6 @@
-[gd_resource type="Theme" load_steps=3 format=3 uid="uid://dyh165k6fs4jf"]
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://dyh165k6fs4jf"]
+
+[ext_resource type="FontFile" uid="uid://dgemb4ot8u4n" path="res://assets/fonts/Born2bSportyV2.ttf" id="1_00x6k"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rwolb"]
 bg_color = Color(0.0364248, 0.263517, 0.310359, 1)
@@ -6,6 +8,13 @@ bg_color = Color(0.0364248, 0.263517, 0.310359, 1)
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vipxn"]
 
 [resource]
+Button/font_sizes/font_size = 64
+Button/fonts/font = ExtResource("1_00x6k")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_rwolb")
 PanelContainerNoBackground/base_type = &"PanelContainer"
 PanelContainerNoBackground/styles/panel = SubResource("StyleBoxEmpty_vipxn")
+RichTextLabel/font_sizes/normal_font_size = 32
+RichTextLabel/fonts/normal_font = ExtResource("1_00x6k")
+RichTextLabelLarge/base_type = &"RichTextLabel"
+RichTextLabelLarge/font_sizes/normal_font_size = 64
+RichTextLabelLarge/fonts/normal_font = ExtResource("1_00x6k")

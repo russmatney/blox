@@ -58,7 +58,7 @@ static func is_accept(event):
 	return is_event(event, "ui_accept")
 
 static func is_undo(event):
-	return is_event(event, "undo")
+	return is_event(event, "ui_undo")
 
 static func is_pause(event):
 	return is_event(event, "pause")

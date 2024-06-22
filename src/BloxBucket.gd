@@ -36,6 +36,7 @@ signal split_complete
 
 var grid_state
 
+signal piece_added
 
 func to_pretty():
 	return {grid=grid}
@@ -62,9 +63,9 @@ func _ready():
 	clear_complete.connect(do_next_action)
 	split_complete.connect(do_next_action)
 
-	start_next_piece()
-	resume_auto_ticking()
-
+	(func():
+		start_next_piece()
+		resume_auto_ticking()).call_deferred()
 
 ## input ################################################
 
@@ -266,6 +267,7 @@ func start_next_piece():
 	var can_add = grid.can_add_piece(current_piece)
 	if can_add:
 		grid.add_piece(current_piece, true)
+		piece_added.emit()
 	else:
 		stuck = true
 		Log.info("Stuck! game over!!")
@@ -279,6 +281,15 @@ func queue_pieces(count=7):
 	for i in range(count):
 		var p = BloxPiece.random()
 		piece_queue.append(p)
+
+func get_piece_queue() -> Array[BloxPiece]:
+	return piece_queue
+
+func next_piece() -> BloxPiece:
+	if piece_queue.is_empty():
+		Log.warn("No next piece!")
+		return BloxPiece.new()
+	return piece_queue[0]
 
 ## render cell backgrounds ################################################
 

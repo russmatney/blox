@@ -7,39 +7,29 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2o1j2"]
 shader = ExtResource("3_hpt8s")
 shader_parameter/overlay = true
-shader_parameter/scanlines_opacity = 0.4
-shader_parameter/scanlines_width = 0.25
-shader_parameter/grille_opacity = 0.3
+shader_parameter/scanlines_opacity = 0.2
+shader_parameter/scanlines_width = 0.1
+shader_parameter/grille_opacity = 0.2
 shader_parameter/resolution = Vector2(640, 480)
 shader_parameter/pixelate = true
 shader_parameter/roll = true
-shader_parameter/roll_speed = 8.0
-shader_parameter/roll_size = 15.0
-shader_parameter/roll_variation = 1.8
-shader_parameter/distort_intensity = 0.05
-shader_parameter/noise_opacity = 0.4
-shader_parameter/noise_speed = 5.0
+shader_parameter/roll_speed = 1.2
+shader_parameter/roll_size = 8.0
+shader_parameter/roll_variation = 1.2
+shader_parameter/distort_intensity = 0.01
+shader_parameter/noise_opacity = 0.1
+shader_parameter/noise_speed = 2.0
 shader_parameter/static_noise_intensity = 0.06
-shader_parameter/aberration = 0.03
-shader_parameter/brightness = 1.4
-shader_parameter/discolor = true
-shader_parameter/warp_amount = 1.0
+shader_parameter/aberration = 0.01
+shader_parameter/brightness = 2.2
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 0.4
 shader_parameter/clip_warp = false
 shader_parameter/vignette_intensity = 0.4
 shader_parameter/vignette_opacity = 0.5
 
 [node name="BloxGame" type="Node"]
 script = ExtResource("1_t4cqx")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
-material = SubResource("ShaderMaterial_2o1j2")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -91,14 +81,27 @@ size_flags_vertical = 2
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer"]
 layout_mode = 2
 
+[node name="BLOXLabel" type="RichTextLabel" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 2.08165e-12)
+layout_mode = 2
+theme_type_variation = &"RichTextLabelLarge"
+bbcode_enabled = true
+text = "[center]BLOX[/center]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
 [node name="ScoreLabel" type="RichTextLabel" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 2.08165e-12)
 layout_mode = 2
+theme_type_variation = &"RichTextLabelLarge"
 bbcode_enabled = true
-text = "[center]Cells: 999[/center]"
+text = "[center]999[/center]"
 fit_content = true
 scroll_active = false
+autowrap_mode = 0
 
 [node name="BucketMarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer"]
 unique_name_in_owner = true
@@ -123,14 +126,17 @@ layout_mode = 2
 [node name="RichTextLabel" type="RichTextLabel" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(100, 2.08165e-12)
 layout_mode = 2
+theme_type_variation = &"RichTextLabelLarge"
 bbcode_enabled = true
 text = "[center]Next[/center]"
 fit_content = true
 scroll_active = false
+autowrap_mode = 0
 
 [node name="PieceQueueGridContainer" type="GridContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="CenterContainer2" type="CenterContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer"]
 layout_mode = 2
@@ -147,5 +153,14 @@ text = "Restart"
 [node name="MarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer/RightSide/VBoxContainer"]
 custom_minimum_size = Vector2(2.08165e-12, 64)
 layout_mode = 2
+
+[node name="CRTVEffect" type="ColorRect" parent="UI"]
+material = SubResource("ShaderMaterial_2o1j2")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
