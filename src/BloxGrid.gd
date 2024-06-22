@@ -245,31 +245,53 @@ func split_piece_coord(piece: BloxPiece, grid_coord: Vector2i) -> void:
 	var new_p = BloxPiece.new({grid_cells=[cell]})
 	add_piece(new_p)
 
+func coords_to_edge(coord: Vector2i, dir: Vector2i) -> Array[Vector2i]:
+	var coords: Array[Vector2i] = []
+	match dir:
+		Vector2i.DOWN:
+			for y in range(coord.y, height):
+				coords.append(Vector2i(coord.x, y))
+		Vector2i.UP:
+			for y in range(coord.y, 0):
+				coords.append(Vector2i(coord.x, y))
+		Vector2i.LEFT:
+			for x in range(coord.x, 0):
+				coords.append(Vector2i(x, coord.y))
+		Vector2i.RIGHT:
+			for x in range(coord.x, width):
+				coords.append(Vector2i(x, coord.y))
+	return coords
+
+
 # splits pieces apart based on room-to-fall beneath cells
 func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 	var crd_to_piece = coords_to_piece_dict()
 
 	var to_split = []
-	var bottom_up = range(height)
-	bottom_up.reverse()
-	bottom_up.pop_front() # skip the whole bottom row!
-	for y in bottom_up:
+
+	for y in range(height):
 		for x in range(width):
 			var crd = Vector2i(x, y)
-			var p = crd_to_piece.get(crd)
-			if not p:
-				continue # no piece at coord, nothing to do
-			var p_below = crd_to_piece.get(crd + dir)
-			if p_below:
-				continue # don't split if there's nowhere to fall
+			var crds_to_split = []
+			var should_split = false
+			for crd_below in coords_to_edge(crd, dir):
+				var p_below = crd_to_piece.get(crd_below)
+				if p_below and p_below.cell_count() > 1: # only split if more than one cell
+					crds_to_split.append(crd)
+				elif not p_below:
+					# no cell, mark split and stop collecting
+					should_split = true
+					break
 
-			# maybe don't split unless some other piece can't fall? or just split everything in puyo mode?
-
-			if p.cell_count() > 1: # only split if more than one cell
-				to_split.append(crd)
+			if should_split:
+				to_split.append_array(crds_to_split)
 
 	for crd in to_split:
 		var p = crd_to_piece.get(crd)
+		if not p:
+			Log.warn("Missing p in apply_split_puyo", crd)
+			continue
+		Log.pr("Splitting piece in apply_split_puyo", p)
 		split_piece_coord(p, crd)
 
 	var did_split = not to_split.is_empty()
@@ -374,7 +396,6 @@ func step(opts={}) -> bool:
 		return true
 
 	# puyo piece split
-	# TODO split more cells here, not just those immediately above a gap
 	if rules.puyo_split and apply_split_puyo(rules.step_direction):
 		# TODO include pieces
 		on_pieces_split.emit()

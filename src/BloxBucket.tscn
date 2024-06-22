@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://dwj7dbdpb053r"]
+[gd_scene load_steps=4 format=3 uid="uid://dwj7dbdpb053r"]
 
 [ext_resource type="Script" path="res://src/BloxBucket.gd" id="1_sogpg"]
+[ext_resource type="Script" path="res://src/GridRules.gd" id="2_hmt8t"]
+
+[sub_resource type="Resource" id="Resource_fyxcv"]
+script = ExtResource("2_hmt8t")
+puyo_split = true
+puyo_group_clear = true
+puyo_group_size = 4
+tetris_row_clear = true
+step_direction = Vector2i(0, 1)
 
 [node name="BloxBucket" type="Node2D"]
 script = ExtResource("1_sogpg")
+grid_rules = SubResource("Resource_fyxcv")

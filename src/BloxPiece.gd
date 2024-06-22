@@ -114,6 +114,7 @@ func get_grid_cells() -> Array[BloxCell]:
 
 func grid_coords() -> Array[Vector2i]:
 	var ret: Array[Vector2i] = []
+	Log.pr("getting cells for piece", grid_cells)
 	for c in grid_cells:
 		ret.append(c.coord)
 	return ret

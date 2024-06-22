@@ -108,10 +108,12 @@ static func enable_colors():
 
 ## DEPRECATED
 static func set_color_scheme(theme):
-	set_color_theme(theme)
+	Log.set_color_theme(theme)
 
 static func set_color_theme(theme):
+	Log.pr("setting color theme", KEY_COLOR_THEME, theme)
 	Log.config[KEY_COLOR_THEME] = theme
+	Log.pr("set!", Log.config[KEY_COLOR_THEME])
 
 ## colors ###########################################################################
 
@@ -250,14 +252,14 @@ static var COLORS_PRETTY_V1 = {
 
 ## Use the terminal safe color scheme, which should handle colors in most tty-like environments.
 static func set_colors_termsafe():
-	set_color_theme(LOG_THEME_TERMSAFE)
+	Log.set_color_theme(LOG_THEME_TERMSAFE)
 
 ## Use prettier colors - looks nice in most dark godot themes.
 ##
 ## [br][br]
 ## Hopefully we'll support more themes (including light themes) soon!
 static func set_colors_pretty():
-	set_color_theme(LOG_THEME_PRETTY_V1)
+	Log.set_color_theme(LOG_THEME_PRETTY_V1)
 
 static var theme_overwrites = {}
 

@@ -1,5 +1,10 @@
 extends GdUnitTestSuite
 
+func before():
+	Log.set_colors_termsafe()
+	Log.pr("ran before! to set colors")
+	Log.pr(Log.config)
+
 ## grid coords ############################################
 
 func test_all_coords():
@@ -225,7 +230,7 @@ func test_rotate_piece_maintains_objects():
 
 ## puyo split/fall ##################################################
 
-func test_puyo_piece_split():
+func test_puyo_split():
 	var grid = BloxGrid.new({width=2, height=2})
 	var p = BloxPiece.new({cells=[
 		Vector2i(), Vector2i(1, 0),
@@ -259,6 +264,49 @@ func test_puyo_piece_split():
 	assert_array(crds).contains([
 		Vector2i(),
 		Vector2i(0, 1), Vector2i(1, 1),
+	])
+
+func test_puyo_split_splits_all_cells():
+	var grid = BloxGrid.new({width=2, height=3})
+	var p2 = BloxPiece.new({cells=[
+		Vector2i(), Vector2i(1, 0),
+		]})
+	var p1 = BloxPiece.new({cells=[
+		Vector2i(0, 1), Vector2i(1, 1),
+		Vector2i(0, 2),
+		]})
+	grid.add_piece(p1)
+	grid.add_piece(p2)
+
+	var crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(2)
+	assert_int(len(crds)).is_equal(5)
+	assert_array(crds).contains([
+		Vector2i(), Vector2i(1, 0),
+		Vector2i(0, 1), Vector2i(1, 1),
+		Vector2i(0, 2),
+		])
+
+	grid.apply_split_puyo()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(4)
+	assert_int(len(crds)).is_equal(5)
+	assert_array(crds).contains([
+		Vector2i(), Vector2i(1, 0),
+		Vector2i(0, 1), Vector2i(1, 1),
+		Vector2i(0, 2),
+	])
+
+	grid.apply_step_tetris()
+
+	crds = grid.piece_coords()
+	assert_int(len(grid.pieces)).is_equal(4)
+	assert_int(len(crds)).is_equal(5)
+	assert_array(crds).contains([
+		Vector2i(),
+		Vector2i(0, 1), Vector2i(1, 1),
+		Vector2i(0, 2), Vector2i(1, 2),
 	])
 
 func test_puyo_split_maintains_ids():
