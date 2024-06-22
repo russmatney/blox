@@ -16,6 +16,8 @@ var score = 0
 
 @onready var next_piece_grid: GridContainer = $%PieceQueueGridContainer
 
+@onready var crtv_effect = $%CRTVEffect
+
 ## ready #############################################
 
 func _ready():
@@ -23,7 +25,9 @@ func _ready():
 
 	grid.on_groups_cleared.connect(func(groups):
 		for cells in groups:
-			add_to_score_label(len(cells)))
+			add_to_score_label(len(cells))
+		# TODO crtv_effect abberation tween
+		)
 	grid.on_rows_cleared.connect(func(rows):
 		for cells in rows:
 			add_to_score_label(len(cells)))

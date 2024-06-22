@@ -10,7 +10,7 @@ shader_parameter/overlay = true
 shader_parameter/scanlines_opacity = 0.2
 shader_parameter/scanlines_width = 0.1
 shader_parameter/grille_opacity = 0.2
-shader_parameter/resolution = Vector2(640, 480)
+shader_parameter/resolution = Vector2(1920, 1440)
 shader_parameter/pixelate = true
 shader_parameter/roll = true
 shader_parameter/roll_speed = 1.2
@@ -155,6 +155,7 @@ custom_minimum_size = Vector2(2.08165e-12, 64)
 layout_mode = 2
 
 [node name="CRTVEffect" type="ColorRect" parent="UI"]
+unique_name_in_owner = true
 material = SubResource("ShaderMaterial_2o1j2")
 anchors_preset = 15
 anchor_right = 1.0

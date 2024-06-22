@@ -123,6 +123,12 @@ func maybe_tick():
 		tick()
 
 func tick():
+	if add_piece_on_tick:
+		add_piece_on_tick = false
+		start_next_piece()
+		resume_auto_ticking()
+		return
+
 	# step the grid forward
 	var any_change = grid.step(rule_inputs)
 
@@ -139,12 +145,17 @@ func pause_auto_ticking():
 func resume_auto_ticking():
 	auto_ticking = true
 
+var add_piece_on_tick = false
+func add_piece_next_tick():
+	add_piece_on_tick = true
+
 ## on grid update ################################################
 
 func do_next_action():
 	if action_queue.is_empty():
 		if grid_state == BloxGrid.STATE_SETTLING:
-			start_next_piece()
+			if not current_piece:
+				add_piece_next_tick()
 		maybe_tick()
 		return
 
@@ -158,7 +169,7 @@ func on_grid_update(state):
 	pause_auto_ticking()
 
 	match (state):
-		BloxGrid.STATE_SPLITTING, BloxGrid.STATE_CLEARING:
+		BloxGrid.STATE_SPLITTING, BloxGrid.STATE_CLEARING, BloxGrid.STATE_SETTLING:
 			# clear to prevent any user action
 			current_piece = null
 		_: pass
@@ -254,6 +265,9 @@ func on_rows_cleared(rows: Array):
 ## start_next_piece ################################################
 
 func start_next_piece():
+	if current_piece:
+		Log.warn("already have a current_piece!?")
+
 	if len(piece_queue) < 4:
 		queue_pieces()
 
