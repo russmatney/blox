@@ -1,23 +1,15 @@
-[gd_scene load_steps=9 format=3 uid="uid://bkbmd5nbt1fco"]
+[gd_scene load_steps=8 format=3 uid="uid://bkbmd5nbt1fco"]
 
 [ext_resource type="PackedScene" uid="uid://dwj7dbdpb053r" path="res://src/BloxBucket.tscn" id="1_hv3gi"]
 [ext_resource type="Script" path="res://src/BloxGame.gd" id="1_t4cqx"]
 [ext_resource type="Script" path="res://src/BloxGrid.gd" id="3_g3a7t"]
 [ext_resource type="Shader" path="res://src/crtv.gdshader" id="3_hpt8s"]
-[ext_resource type="Script" path="res://src/GridRules.gd" id="4_73yam"]
+[ext_resource type="Resource" uid="uid://cmqc1wv5saopl" path="res://src/rules/PuyoGridRules.tres" id="4_ydo31"]
 
 [sub_resource type="Resource" id="Resource_upt77"]
 script = ExtResource("3_g3a7t")
 width = 10
 height = 12
-
-[sub_resource type="Resource" id="Resource_vi647"]
-script = ExtResource("4_73yam")
-puyo_split = false
-puyo_group_clear = false
-puyo_group_size = 4
-tetris_row_clear = true
-step_direction = Vector2i(0, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2o1j2"]
 shader = ExtResource("3_hpt8s")
@@ -64,7 +56,7 @@ z_index = 1
 position = Vector2(387, 49)
 grid = SubResource("Resource_upt77")
 cell_size = Vector2(48, 48)
-grid_rules = SubResource("Resource_vi647")
+grid_rules = ExtResource("4_ydo31")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

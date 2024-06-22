@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GridRules" load_steps=2 format=3 uid="uid://b24epxiwyvbpl"]
+
+[ext_resource type="Script" path="res://src/GridRules.gd" id="1_6t4tg"]
+
+[resource]
+script = ExtResource("1_6t4tg")
+puyo_split = true
+puyo_group_clear = true
+puyo_group_size = 4
+tetris_row_clear = true
+step_direction = Vector2i(0, 1)
