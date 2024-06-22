@@ -185,11 +185,12 @@
   ([export-name] (export export-name nil))
   ([export-name opts]
    (let [debug?      (:debug? opts)
-         export-name (or export-name "dino-linux")
+         export-name (or export-name "web")
          build-dir   (str "dist/" export-name)
          executable  (case export-name
-                       "dino-linux" "dino.x86_64")]
-     (println "export" export-name build-dir)
+                       "linux" "blox.x86_64"
+                       "web"   "index.html")]
+     (println "export" export-name build-dir executable)
      (-> (p/$ mkdir -p ~build-dir) p/check)
      (shell-and-log (str "godot --headless "
                          (if debug? "--export-debug" "--export-release")
@@ -199,7 +200,7 @@
 (defn build-web
   ([] (build-web nil))
   ([export-name]
-   (let [export-name (or export-name "dino")
+   (let [export-name (or export-name "blox")
          build-dir   (str "dist/" export-name)]
      (println "build-web" export-name build-dir)
      (-> (p/$ mkdir -p ~build-dir) p/check)
