@@ -1,7 +1,6 @@
 <p align="center">
-  <!-- <a href="https://github.com/russmatney/dino/actions/workflows/unit_tests.yml"><img alt="Unit Tests" src="https://github.com/russmatney/dino/actions/workflows/unit_tests.yml/badge.svg" /></a> -->
-  <!-- <a href="https://github.com/russmatney/dino/actions/workflows/itch_build_and_deploy.yml"><img alt="Itch Deploy" src="https://github.com/russmatney/dino/actions/workflows/itch_build_and_deploy.yml/badge.svg" /></a> -->
-  <!-- <a href="https://github.com/russmatney/dino/actions/workflows/steam_build_and_deploy.yml"><img alt="Steam Deploy" src="https://github.com/russmatney/dino/actions/workflows/steam_build_and_deploy.yml/badge.svg" /></a> -->
+  <a href="https://github.com/russmatney/blox/actions/workflows/unit_tests.yml"><img alt="Unit Tests" src="https://github.com/russmatney/blox/actions/workflows/unit_tests.yml/badge.svg" /></a>
+  <a href="https://github.com/russmatney/blox/actions/workflows/itch_build_and_deploy.yml"><img alt="Itch Deploy" src="https://github.com/russmatney/blox/actions/workflows/itch_build_and_deploy.yml/badge.svg" /></a>
  </p>
 
 <p align="center">
@@ -11,9 +10,9 @@
 <a href="https://discord.gg/PQvfdApHFQ">
 <img alt="russmatney on Discord" src="https://img.shields.io/discord/758750490015563776?style=for-the-badge&logo=discord&logoColor=fff&label=discord" />
 </a>
-<!-- <a href="https://russmatney.itch.io/blox"> -->
-<!-- <img alt="Blox on Itch.io" src="https://img.shields.io/badge/blox%20-%20?style=for-the-badge&logo=itch.io&logoColor=fff&label=itch.io&color=ef99ab" /> -->
-<!-- </a> -->
+<a href="https://russmatney.itch.io/blox">
+<img alt="Blox on Itch.io" src="https://img.shields.io/badge/blox%20-%20?style=for-the-badge&logo=itch.io&logoColor=fff&label=itch.io&color=ef99ab" />
+</a>
  <a href="https://mastodon.gamedev.place/@russmatney">
    <img alt="russmatney on Mastodon" src="https://img.shields.io/badge/Mastodon-teal?style=for-the-badge&logo=mastodon&logoColor=white" />
  </a>
