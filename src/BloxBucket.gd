@@ -16,13 +16,13 @@ var tick_every = 0.4
 
 var cell_id_to_rect = {}
 
-# TODO use GridRules
-var rule_inputs = {
+@export var grid_rules: GridRules
+var fallback_rules = GridRules.new({
 	step_direction=Vector2i.DOWN,
 	puyo_split=true,
 	tetris_row_clear=true,
 	puyo_group_clear=true,
-	}
+	})
 
 var next_tick_in = 0
 var auto_ticking = true
@@ -44,6 +44,8 @@ func to_pretty():
 ## ready ################################################
 
 func _ready():
+	if not grid_rules:
+		grid_rules = fallback_rules
 	render_grid_cell_bg()
 
 	if Engine.is_editor_hint():
@@ -132,7 +134,7 @@ func tick():
 		return
 
 	# step the grid forward
-	var any_change = grid.step(rule_inputs)
+	var any_change = grid.step(grid_rules)
 
 	if any_change:
 		# this eventually fires 'do_next_action' (after any animation)

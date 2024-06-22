@@ -360,7 +360,13 @@ signal on_rows_cleared(rows)
 func step(opts={}) -> bool:
 	# TODO refactor: separate _what_ to do from _doing_ it
 
-	var rules = GridRules.new(opts)
+	var rules: GridRules
+	if opts is Dictionary:
+		rules = GridRules.new(opts)
+	elif opts is GridRules:
+		rules = opts
+	else:
+		Log.warn("Unexpected step()/GridRules input!", opts)
 
 	# move everything that can one step, if possible
 	if apply_step_tetris(rules.step_direction):

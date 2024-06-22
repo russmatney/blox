@@ -4,7 +4,6 @@ extends Node
 
 @onready var bucket: BloxBucket = $BloxBucket
 @onready var camera: Camera2D = $Camera2D
-var grid: BloxGrid
 
 @onready var bucket_margin_container: MarginContainer = $%BucketMarginContainer
 var bucket_margin = 64
@@ -21,14 +20,12 @@ var score = 0
 ## ready #############################################
 
 func _ready():
-	grid = bucket.grid
-
-	grid.on_groups_cleared.connect(func(groups):
+	bucket.grid.on_groups_cleared.connect(func(groups):
 		for cells in groups:
 			add_to_score_label(len(cells))
 		# TODO crtv_effect abberation tween
 		)
-	grid.on_rows_cleared.connect(func(rows):
+	bucket.grid.on_rows_cleared.connect(func(rows):
 		for cells in rows:
 			add_to_score_label(len(cells)))
 

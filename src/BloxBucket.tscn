@@ -1,13 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://dwj7dbdpb053r"]
+[gd_scene load_steps=2 format=3 uid="uid://dwj7dbdpb053r"]
 
 [ext_resource type="Script" path="res://src/BloxBucket.gd" id="1_sogpg"]
-[ext_resource type="Script" path="res://src/BloxGrid.gd" id="2_viwvj"]
-
-[sub_resource type="Resource" id="Resource_v1mye"]
-script = ExtResource("2_viwvj")
-width = 8
-height = 12
 
 [node name="BloxBucket" type="Node2D"]
 script = ExtResource("1_sogpg")
-grid = SubResource("Resource_v1mye")
