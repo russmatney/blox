@@ -81,7 +81,9 @@ func _input(event):
 		if Trolls.is_move_down(event):
 			did_move = grid.move_piece(current_piece, Vector2i.DOWN)
 		if Trolls.is_move_up(event):
+			# move up twice as a simple tick-down counter
 			did_move = grid.move_piece(current_piece, Vector2i.UP)
+			grid.move_piece(current_piece, Vector2i.UP)
 		if did_move:
 			user_moved_piece({time=0.2})
 			return
