@@ -23,7 +23,9 @@ SoundManager="*res://addons/sound_manager/sound_manager.gd"
 
 [display]
 
-window/size/resizable=false
+window/stretch/aspect="keep_width"
+window/stretch/scale=2.0
+window/stretch/scale_mode="integer"
 
 [editor]
 

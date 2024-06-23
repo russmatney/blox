@@ -42,14 +42,13 @@ script = ExtResource("1_t4cqx")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -721.0
-offset_top = -511.0
-offset_right = 1009.0
-offset_bottom = 607.0
+offset_left = -2569.0
+offset_top = -1732.0
+offset_right = 2992.0
+offset_bottom = 2126.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.00151539, 0.187871, 0.249572, 1)
-metadata/_edit_lock_ = true
 
 [node name="BloxBucket" parent="." instance=ExtResource("1_hv3gi")]
 z_index = 1
