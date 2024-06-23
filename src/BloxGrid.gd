@@ -121,7 +121,7 @@ func calc_conflicts(new_cells: Array[Vector2i], moving_cells: Array[Vector2i], l
 		if c in moving_cells:
 			continue # ignore existing cells (b/c they'll move out of the way)
 		if all_coords_dict.get(c):
-			Log.info("%s conflict with existing cell" % log_label, c)
+			# Log.info("%s conflict with existing cell" % log_label, c)
 			conflicts.append(c) # there's an occupied cell in the way
 	return conflicts
 
@@ -326,6 +326,7 @@ func clear_groups(rules=null) -> Array:
 		if len(group_coords) >= rules.puyo_group_size:
 			var group_cells = []
 			for c in group_coords:
+				crd_to_piece.erase(c)
 				var cell = remove_at_coord(c)
 				if cell:
 					group_cells.append(cell)
