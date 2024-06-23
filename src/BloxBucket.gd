@@ -35,6 +35,7 @@ signal clear_complete
 signal split_complete
 
 var grid_state
+var combo_level = 0
 
 signal piece_added
 
@@ -233,14 +234,16 @@ func on_pieces_split():
 
 func on_groups_cleared(groups: Array):
 	Log.info("group cleared", groups)
+	combo_level += 1
 	var t = 0.3
 	var tween = create_tween()
 	var rects = []
 	for cells in groups:
 		for color_rect in get_color_rects(cells):
 			rects.append(color_rect)
-			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
-			tween.parallel().tween_property(color_rect, "size", color_rect.size * 1.4, t)
+			tween.parallel().tween_property(color_rect, "color",
+				[Color.WHITE, Color.BLACK].pick_random(), t)
+			tween.parallel().tween_property(color_rect, "size", color_rect.size * 1.4 * combo_level, t)
 			tween.parallel().tween_property(color_rect, "rotation", PI, t)
 		clear_color_rects(cells)
 
@@ -253,14 +256,16 @@ func on_groups_cleared(groups: Array):
 
 func on_rows_cleared(rows: Array):
 	Log.info("rows cleared", rows)
+	combo_level += 1
 	var tween = create_tween()
 	var t = 0.3
 	var rects = []
 	for cells in rows:
 		for color_rect in get_color_rects(cells):
 			rects.append(color_rect)
-			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
-			tween.parallel().tween_property(color_rect, "size", color_rect.size * 1.4, t)
+			tween.parallel().tween_property(color_rect, "color",
+				[Color.WHITE, Color.BLACK].pick_random(), t)
+			tween.parallel().tween_property(color_rect, "size", color_rect.size * 1.4 * combo_level, t)
 			tween.parallel().tween_property(color_rect, "rotation", PI, t)
 		clear_color_rects(cells)
 
@@ -275,6 +280,7 @@ func start_next_piece():
 	if current_piece:
 		Log.warn("already have a current_piece!?")
 
+	combo_level = 0
 	if len(piece_queue) < 4:
 		queue_pieces()
 
