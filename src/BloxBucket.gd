@@ -232,15 +232,16 @@ func on_pieces_split():
 ## on cells cleared ################################################
 
 func on_groups_cleared(groups: Array):
-	Log.pr("group cleared", groups)
+	Log.info("group cleared", groups)
 	var t = 0.3
 	var tween = create_tween()
 	var rects = []
 	for cells in groups:
 		for color_rect in get_color_rects(cells):
-			Log.pr("tweening color rect", color_rect)
-			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
 			rects.append(color_rect)
+			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
+			tween.parallel().tween_property(color_rect, "size", color_rect.size * 1.4, t)
+			tween.parallel().tween_property(color_rect, "rotation", PI, t)
 		clear_color_rects(cells)
 
 	tween.tween_callback(func():
@@ -251,7 +252,7 @@ func on_groups_cleared(groups: Array):
 ## on rows cleared ################################################
 
 func on_rows_cleared(rows: Array):
-	Log.pr("rows cleared", rows)
+	Log.info("rows cleared", rows)
 	var tween = create_tween()
 	var t = 0.3
 	var rects = []
@@ -259,12 +260,14 @@ func on_rows_cleared(rows: Array):
 		for color_rect in get_color_rects(cells):
 			rects.append(color_rect)
 			tween.parallel().tween_property(color_rect, "color", Color.WHITE, t)
+			tween.parallel().tween_property(color_rect, "size", color_rect.size * 1.4, t)
+			tween.parallel().tween_property(color_rect, "rotation", PI, t)
 		clear_color_rects(cells)
 
 	tween.tween_callback(func():
-		clear_complete.emit()
 		for color_rect in rects:
-			color_rect.queue_free())
+			color_rect.queue_free()
+		clear_complete.emit())
 
 ## start_next_piece ################################################
 
@@ -380,6 +383,7 @@ func update_piece_positions():
 					cr.color = piece.color
 
 				cr.size = piece_cell_size()
+				cr.pivot_offset = cr.size / 2
 
 				add_child.call_deferred(cr)
 
