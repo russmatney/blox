@@ -197,7 +197,8 @@ func remove_at_coord(coord: Vector2i) -> BloxCell:
 func bottom_up_pieces() -> Array[BloxPiece]:
 	var ps: Array[BloxPiece] = []
 	ps.assign(pieces)
-	ps.sort_custom(func(pa, pb): return pa.get_max_y() > pb.get_max_y())
+	ps.sort_custom(func(pa, pb):
+		return pa.get_max_y() > pb.get_max_y())
 	return ps
 
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:

@@ -111,6 +111,9 @@ func get_grid_cells() -> Array[BloxCell]:
 	return grid_cells
 
 func get_max_y():
+	if grid_cells.is_empty():
+		Log.warn("Piece with no grid_cells?", self)
+		return 0
 	return grid_cells.map(func(c): return c.coord.y).max()
 
 ## coords ####################################
