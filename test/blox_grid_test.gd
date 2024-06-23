@@ -2,8 +2,6 @@ extends GdUnitTestSuite
 
 func before():
 	Log.set_colors_termsafe()
-	Log.pr("ran before! to set colors")
-	Log.pr(Log.config)
 
 ## grid coords ############################################
 
@@ -268,12 +266,12 @@ func test_puyo_split():
 
 func test_puyo_split_splits_all_cells():
 	var grid = BloxGrid.new({width=2, height=3})
-	var p2 = BloxPiece.new({cells=[
-		Vector2i(), Vector2i(1, 0),
-		]})
 	var p1 = BloxPiece.new({cells=[
 		Vector2i(0, 1), Vector2i(1, 1),
 		Vector2i(0, 2),
+		]})
+	var p2 = BloxPiece.new({cells=[
+		Vector2i(), Vector2i(1, 0),
 		]})
 	grid.add_piece(p1)
 	grid.add_piece(p2)

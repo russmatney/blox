@@ -95,16 +95,17 @@ func move_piece(piece: BloxPiece, dir=Vector2i.DOWN, skip_check=false) -> bool:
 		return true
 	return false
 
-func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN):
+func can_piece_move(piece: BloxPiece, dir=Vector2i.DOWN, other_moving_cells=[]):
 	var new_cells = piece.relative_coords(dir)
-	var existing_cells = piece.grid_coords()
-	var conflicts = calc_conflicts(new_cells, existing_cells, "movement")
+	var moving_cells = piece.grid_coords()
+	moving_cells.append_array(other_moving_cells)
+	var conflicts = calc_conflicts(new_cells, moving_cells, "movement")
 	return conflicts.is_empty()
 
 # returns true if the new_cell coords point to an existing piece
-# the existing_cells are ignored, and are assumed to belong to the moving/rotating piece
+# the moving_cells are ignored - they may belong to the moving/rotating piece, or another already moving piece
 # PERF could pass an optional early return flag
-func calc_conflicts(new_cells: Array[Vector2i], existing_cells: Array[Vector2i], log_label="") -> Array[Vector2i]:
+func calc_conflicts(new_cells: Array[Vector2i], moving_cells: Array[Vector2i], log_label="") -> Array[Vector2i]:
 	var all_coords_dict = all_coords_as_dict()
 	var conflicts: Array[Vector2i] = []
 
@@ -117,7 +118,7 @@ func calc_conflicts(new_cells: Array[Vector2i], existing_cells: Array[Vector2i],
 			# return true
 
 	for c in new_cells:
-		if c in existing_cells:
+		if c in moving_cells:
 			continue # ignore existing cells (b/c they'll move out of the way)
 		if all_coords_dict.get(c):
 			Log.info("%s conflict with existing cell" % log_label, c)
@@ -193,13 +194,21 @@ func remove_at_coord(coord: Vector2i) -> BloxCell:
 
 ## tetris fall ################################################
 
+func bottom_up_pieces() -> Array[BloxPiece]:
+	var ps: Array[BloxPiece] = []
+	ps.assign(pieces)
+	ps.sort_custom(func(pa, pb): return pa.get_max_y() > pb.get_max_y())
+	return ps
+
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
 	# hmm i think we should do this bottom up and apply the fall right away
 	# also there's probably interest in animating the change
+	var falling_cells = []
 	var to_fall = []
-	for piece in pieces:
-		if can_piece_move(piece, dir):
+	for piece in bottom_up_pieces():
+		if can_piece_move(piece, dir, falling_cells):
 			to_fall.append(piece)
+			falling_cells.append_array(piece.grid_coords())
 
 	# drop them all at once
 	# (this doesn't seem right, multi-piece stacks won't fall together)
@@ -277,7 +286,8 @@ func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 			for crd_below in coords_to_edge(crd, dir):
 				var p_below = crd_to_piece.get(crd_below)
 				if p_below and p_below.cell_count() > 1: # only split if more than one cell
-					crds_to_split.append(crd)
+					if not crd in crds_to_split:
+						crds_to_split.append(crd)
 				elif not p_below:
 					# no cell, mark split and stop collecting
 					should_split = true
@@ -289,9 +299,8 @@ func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 	for crd in to_split:
 		var p = crd_to_piece.get(crd)
 		if not p:
-			Log.warn("Missing p in apply_split_puyo", crd)
+			Log.error("Missing expected piece in apply_split_puyo", crd)
 			continue
-		Log.pr("Splitting piece in apply_split_puyo", p)
 		split_piece_coord(p, crd)
 
 	var did_split = not to_split.is_empty()
