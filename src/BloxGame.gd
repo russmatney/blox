@@ -68,6 +68,9 @@ func set_rules(rules: GridRules):
 			puyo_button.set_pressed(true)
 		combined_rules:
 			combined_button.set_pressed(true)
+	if bucket.stuck:
+		bucket.stuck = false
+		bucket.maybe_tick()
 
 ## start game #############################################
 
