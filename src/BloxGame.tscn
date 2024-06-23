@@ -8,7 +8,7 @@
 
 [sub_resource type="Resource" id="Resource_upt77"]
 script = ExtResource("3_g3a7t")
-width = 10
+width = 8
 height = 12
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2o1j2"]
@@ -18,7 +18,7 @@ shader_parameter/scanlines_opacity = 0.2
 shader_parameter/scanlines_width = 0.1
 shader_parameter/grille_opacity = 0.2
 shader_parameter/resolution = Vector2(1920, 1440)
-shader_parameter/pixelate = true
+shader_parameter/pixelate = false
 shader_parameter/roll = true
 shader_parameter/roll_speed = 1.2
 shader_parameter/roll_size = 8.0
@@ -27,7 +27,7 @@ shader_parameter/distort_intensity = 0.01
 shader_parameter/noise_opacity = 0.1
 shader_parameter/noise_speed = 2.0
 shader_parameter/static_noise_intensity = 0.06
-shader_parameter/aberration = 0.01
+shader_parameter/aberration = 0.00500005
 shader_parameter/brightness = 2.2
 shader_parameter/discolor = false
 shader_parameter/warp_amount = 0.4
@@ -112,6 +112,38 @@ text = "[center]999[/center]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
+
+[node name="CenterContainer2" type="CenterContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer2"]
+layout_mode = 2
+
+[node name="TetrisMode" type="Button" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "Tetris"
+
+[node name="PuyoMode" type="Button" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "Puyo"
+
+[node name="CombinedMode" type="Button" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "Combined"
+
+[node name="MarginContainer2" type="MarginContainer" parent="UI/HUD/HBoxContainer/LeftSide/VBoxContainer"]
+custom_minimum_size = Vector2(2.08165e-12, 64)
+layout_mode = 2
 
 [node name="BucketMarginContainer" type="MarginContainer" parent="UI/HUD/HBoxContainer"]
 unique_name_in_owner = true

@@ -17,6 +17,15 @@ var score = 0
 
 @onready var crtv_effect = $%CRTVEffect
 
+@onready var tetris_button: Button = $%TetrisMode
+@onready var puyo_button: Button = $%PuyoMode
+@onready var combined_button: Button = $%CombinedMode
+
+@onready var tetris_rules = preload("res://src/rules/TetrisGridRules.tres")
+@onready var puyo_rules = preload("res://src/rules/PuyoGridRules.tres")
+@onready var combined_rules = preload("res://src/rules/PuyoPlusTetrisGridRules.tres")
+var rule_buttons = []
+
 ## ready #############################################
 
 func _ready():
@@ -38,11 +47,27 @@ func _ready():
 	camera.offset = bucket.bucket_center()
 
 	restart_button.pressed.connect(func():
-		Log.info("restart pressed!")
 		reset_score_label()
 		bucket.restart())
 
+	rule_buttons = [tetris_button, puyo_button, combined_button]
+	tetris_button.pressed.connect(func(): set_rules(tetris_rules))
+	puyo_button.pressed.connect(func(): set_rules(puyo_rules))
+	combined_button.pressed.connect(func(): set_rules(combined_rules))
+	set_rules.call_deferred(combined_rules)
+
 	start_game()
+
+func set_rules(rules: GridRules):
+	rule_buttons.map(func(b): b.set_pressed(false))
+	bucket.grid_rules = rules
+	match rules:
+		tetris_rules:
+			tetris_button.set_pressed(true)
+		puyo_rules:
+			puyo_button.set_pressed(true)
+		combined_rules:
+			combined_button.set_pressed(true)
 
 ## start game #############################################
 
