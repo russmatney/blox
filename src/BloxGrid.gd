@@ -199,7 +199,7 @@ func bottom_up_pieces(_dir: Vector2i) -> Array[BloxPiece]:
 	var ps: Array[BloxPiece] = []
 	ps.assign(pieces)
 	ps.sort_custom(func(pa, pb):
-		return pa.get_max_y() > pb.get_max_y())
+		return pa.get_max_y() >= pb.get_max_y())
 	return ps
 
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
@@ -247,6 +247,10 @@ func clear_rows() -> Array:
 
 func split_piece_coord(piece: BloxPiece, grid_coord: Vector2i) -> void:
 	var cell = piece.remove_coord(grid_coord)
+
+	if piece.is_empty():
+		Log.warn("erasing/creating single-cell piece!?", piece)
+		pieces.erase(piece)
 	# maintain the same cell object!
 	var new_p = BloxPiece.new({grid_cells=[cell]})
 	add_piece(new_p)
@@ -298,7 +302,9 @@ func apply_split_puyo(dir=Vector2i.DOWN) -> bool:
 		if not p:
 			Log.error("Missing expected piece in apply_split_puyo", crd)
 			continue
-		split_piece_coord(p, crd)
+		# should have already filtered on this?!
+		if p.cell_count() > 1:
+			split_piece_coord(p, crd)
 
 	var did_split = not to_split.is_empty()
 	return did_split

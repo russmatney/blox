@@ -116,6 +116,12 @@ func get_max_y():
 		return 0
 	return grid_cells.map(func(c): return c.coord.y).max()
 
+func get_max_x():
+	if grid_cells.is_empty():
+		Log.warn("Piece with no grid_cells?", self)
+		return 0
+	return grid_cells.map(func(c): return c.coord.x).max()
+
 ## coords ####################################
 
 func grid_coords() -> Array[Vector2i]:
