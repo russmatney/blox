@@ -194,7 +194,8 @@ func remove_at_coord(coord: Vector2i) -> BloxCell:
 
 ## tetris fall ################################################
 
-func bottom_up_pieces() -> Array[BloxPiece]:
+func bottom_up_pieces(_dir: Vector2i) -> Array[BloxPiece]:
+	# TODO use `dir` to go 'bottom-up' from any direction
 	var ps: Array[BloxPiece] = []
 	ps.assign(pieces)
 	ps.sort_custom(func(pa, pb):
@@ -202,18 +203,13 @@ func bottom_up_pieces() -> Array[BloxPiece]:
 	return ps
 
 func apply_step_tetris(dir=Vector2i.DOWN) -> bool:
-	# hmm i think we should do this bottom up and apply the fall right away
-	# also there's probably interest in animating the change
 	var falling_cells = []
 	var to_fall = []
-	for piece in bottom_up_pieces():
+	for piece in bottom_up_pieces(dir):
 		if can_piece_move(piece, dir, falling_cells):
 			to_fall.append(piece)
 			falling_cells.append_array(piece.grid_coords())
 
-	# drop them all at once
-	# (this doesn't seem right, multi-piece stacks won't fall together)
-	# maybe it's fine/a graphic?
 	for piece in to_fall:
 		move_piece(piece, dir, true)
 
