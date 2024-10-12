@@ -12,7 +12,7 @@ jobs:
     name: Windows Export
     runs-on: ubuntu-20.04
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.3
     environment: Godot Dev Env
     steps:
       - name: Checkout
@@ -51,7 +51,7 @@ jobs:
     name: Linux Export
     runs-on: ubuntu-20.04
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.3
     environment: Godot Dev Env
     steps:
       - name: Checkout
@@ -90,7 +90,7 @@ jobs:
     name: Web Export
     runs-on: ubuntu-20.04
     container:
-      image: barichello/godot-ci:4.2.2
+      image: barichello/godot-ci:4.3
     environment: Godot Dev Env
     steps:
       - name: Checkout
